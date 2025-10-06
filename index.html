@@ -1,0 +1,1062 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investment & Real Estate Comparison Calculator</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/nouislider@15.7.1/dist/nouislider.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nouislider@15.7.1/dist/nouislider.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: linear-gradient(135deg, #4CAF50 0%, #8BC34A 100%);
+            min-height: 100vh;
+            padding: 2vw;
+            color: #333;
+        }
+        .container {
+            max-width: min(1400px, 95vw);
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 1.5rem;
+            padding: min(4vw, 30px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: min(3vw, 30px);
+            font-size: clamp(1.8rem, 5vw, 2.5rem);
+            font-weight: 300;
+        }
+        .input-section {
+            background: #f8f9fa;
+            padding: min(3vw, 25px);
+            border-radius: 1rem;
+            border-left: 5px solid #4CAF50;
+            margin-bottom: min(3vw, 30px);
+        }
+        summary {
+            cursor: pointer;
+            padding: min(1.5vw, 12px);
+            background: #e9ecef;
+            border-radius: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: clamp(1rem, 3vw, 1.2rem);
+            transition: background 0.3s;
+        }
+        summary:hover { background: #d8dfe6; }
+        .investment-section {
+            background: #fff;
+            padding: min(2.5vw, 20px);
+            border-radius: 0.75rem;
+            margin-bottom: min(2vw, 15px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e9ecef;
+        }
+        .investment-section.real-estate { border-left: 5px solid #FF9800; }
+        .etf-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: min(2vw, 15px);
+        }
+        .etf-title {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: clamp(0.9rem, 3vw, 1.1rem);
+        }
+        .remove-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: min(1vw, 8px) min(2vw, 12px);
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: clamp(0.7rem, 2.5vw, 0.8rem);
+            transition: background 0.3s;
+            min-width: 60px;
+        }
+        .remove-btn:hover { background: #c0392b; }
+        .comparison-locked .remove-btn { background: #ccc; cursor: not-allowed; }
+        .input-group { margin-bottom: min(2.5vw, 20px); }
+        label {
+            display: block;
+            margin-bottom: min(1vw, 8px);
+            font-weight: 500;
+            color: #34495e;
+            font-size: clamp(0.85rem, 2.8vw, 0.95rem);
+        }
+        input[type="number"], input[type="text"], select {
+            width: 100%;
+            padding: min(1.5vw, 12px);
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: clamp(0.85rem, 2.8vw, 1rem);
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        input[type="number"]:focus, input[type="text"]:focus, select:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        }
+        .slider-container { margin-bottom: min(2.5vw, 20px); padding: 10px 0; }
+        .slider-label {
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+            color: #34495e;
+            margin-top: min(1vw, 8px);
+        }
+        .noUi-target {
+            margin: 10px 0;
+            background: #e9ecef;
+            border: none;
+            box-shadow: none;
+        }
+        .noUi-connect { background: #4CAF50; }
+        .noUi-handle {
+            background: #fff;
+            border: 2px solid #4CAF50;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            cursor: grab;
+        }
+        .noUi-handle:active { cursor: grabbing; }
+        .noUi-tooltip {
+            font-size: 0.8rem;
+            background: #2c3e50;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        .btn {
+            background: linear-gradient(135deg, #4CAF50 0%, #8BC34A 100%);
+            color: white;
+            border: none;
+            padding: min(1.5vw, 12px) min(3vw, 24px);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: clamp(0.85rem, 2.8vw, 1rem);
+            font-weight: 500;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-right: min(1.5vw, 10px);
+            margin-bottom: min(1.5vw, 10px);
+            min-width: 100px;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+        .btn-secondary { background: #6c757d; }
+        .btn-secondary:hover { box-shadow: 0 5px 15px rgba(108, 117, 125, 0.4); }
+        .results-section {
+            background: #f8f9fa;
+            padding: min(3vw, 25px);
+            border-radius: 1rem;
+            border-left: 5px solid #28a745;
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: min(2.5vw, 20px);
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+        }
+        .comparison-table th {
+            background: #4CAF50;
+            color: white;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .comparison-table th, .comparison-table td {
+            padding: min(1.5vw, 12px);
+            text-align: center;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .comparison-table tr:last-child td { border-bottom: none; }
+        .best-value { color: #155724; font-weight: 700; }
+        .yearly-breakdown-wrapper {
+            overflow-x: auto;
+            margin-top: min(2.5vw, 20px);
+            -webkit-overflow-scrolling: touch;
+        }
+        .breakdown-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            font-size: clamp(0.75rem, 2.5vw, 0.85rem);
+            min-width: max-content;
+            table-layout: auto;
+        }
+        .breakdown-table th, .breakdown-table td {
+            padding: min(1.5vw, 12px);
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+            border-right: 1px solid #e9ecef;
+            vertical-align: top;
+        }
+        .breakdown-table th:last-child, .breakdown-table td:last-child { border-right: none; }
+        .breakdown-table.yearly-comparative th, .breakdown-table.yearly-comparative td {
+            min-width: 200px;
+            line-height: 1.4;
+        }
+        .breakdown-table th {
+            position: sticky;
+            top: 0;
+            z-index: 30;
+            background: #4CAF50;
+            color: white;
+        }
+        .breakdown-table .main-row th:first-child, .breakdown-table .yearly-comparative tbody tr td:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 20;
+            min-width: 60px;
+            max-width: 60px;
+            border-right: 2px solid #ccc;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .breakdown-table.yearly-comparative tbody tr:nth-child(odd) {
+            background: #f9f9f9;
+        }
+        .breakdown-table.yearly-comparative tbody tr:nth-child(odd) td:first-child {
+            background: #f9f9f9;
+        }
+        .breakdown-table .main-row th:first-child { z-index: 40; background: #4CAF50; }
+        .breakdown-table.yearly-comparative td .amount-line {
+            display: block;
+            font-weight: 600;
+            font-size: 1.1em;
+            margin-bottom: 4px;
+        }
+        .breakdown-table.yearly-comparative td .detail-line {
+            display: block;
+            font-size: 0.8em;
+            margin-bottom: 4px;
+            color: #555;
+        }
+        .breakdown-table .interest-gained-value, .breakdown-table .property-appreciation { color: #28a745; font-weight: 600; }
+        .breakdown-table .withdrawal-value { color: #e74c3c; font-weight: 500; }
+        .breakdown-table .real-estate-equity { color: #03A9F4; font-weight: 600; }
+        .breakdown-table .net-cashflow-value.positive { color: #007bff; }
+        .breakdown-table .net-cashflow-value.negative { color: #e74c3c; }
+        .breakdown-table .net-cashflow-value.zero { color: #6c757d; }
+        .breakdown-table .mortgage-interest-paid { color: #9C27B0; font-weight: 500; }
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+        }
+        .toggle-group button {
+            background-color: #e9ecef;
+            border: 1px solid #ced4da;
+            color: #495057;
+            padding: 8px 15px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .toggle-group button:first-child { border-radius: 6px 0 0 6px; }
+        .toggle-group button:last-child { border-radius: 0 6px 6px 0; }
+        .toggle-group button.active { background-color: #4CAF50; color: white; border-color: #4CAF50; }
+        .error-message { color: #e74c3c; font-size: clamp(0.8rem, 2.5vw, 0.9rem); margin-top: min(1vw, 8px); }
+        @media (max-width: 900px) {
+            .yearly-breakdown-wrapper, .comparison-table { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            .breakdown-table.yearly-comparative th, .breakdown-table.yearly-comparative td { min-width: 150px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Investment & Real Estate Comparison Calculator</h1>
+        <details class="input-section" open>
+            <summary>Investment Parameters</summary>
+            <div class="calculator-section">
+                <div>
+                    <h2>Global Parameters</h2>
+                    <div class="input-group">
+                        <label for="time-period">Time Period (Years)</label>
+                        <input type="number" id="time-period" value="25" min="1" max="50" step="1" aria-label="Investment Time Period in Years" aria-describedby="time-period-error">
+                        <div id="time-period-error" class="error-message"></div>
+                    </div>
+                    <div class="compounding-toggle">
+                        <label>Compounding Frequency:</label>
+                        <div class="toggle-group">
+                            <button class="toggle-btn" data-frequency="monthly" onclick="setCompoundingFrequency('monthly')" aria-label="Select monthly compounding">Monthly</button>
+                            <button class="toggle-btn active" data-frequency="yearly" onclick="setCompoundingFrequency('yearly')" aria-label="Select yearly compounding">Yearly</button>
+                        </div>
+                    </div>
+                    <div id="investments-container">
+                        <div class="investment-section etf-section">
+                            <div class="etf-header">
+                                <span class="etf-title">Investment #1</span>
+                                <button class="remove-btn" onclick="removeInvestment(this)" aria-label="Remove Investment 1">Remove</button>
+                            </div>
+                            <div class="input-group">
+                                <label>Investment Type</label>
+                                <input type="text" class="investment-type" value="ETF" readonly>
+                            </div>
+                            <div class="input-group">
+                                <label>Initial Investment ($)</label>
+                                <input type="number" class="initial-investment" value="50000" min="0" step="100" aria-label="Initial Investment for ETF 1 in Dollars" aria-describedby="initial-investment-error-1">
+                                <div id="initial-investment-error-1" class="error-message"></div>
+                            </div>
+                            <div class="input-group">
+                                <label>Investment Name</label>
+                                <input type="text" class="investment-name" value="High-Growth ETF (VOO)" placeholder="Enter ETF name" aria-label="Name of ETF 1">
+                            </div>
+                            <div class="input-group">
+                                <label>Annual Contribution ($)</label>
+                                <input type="number" class="annual-contribution" value="6000" min="0" step="100" aria-label="Annual Contribution for ETF 1 in Dollars" aria-describedby="annual-contribution-error-1">
+                                <div id="annual-contribution-error-1" class="error-message"></div>
+                            </div>
+                            <div class="input-group">
+                                <label>Annual Withdrawal ($)</label>
+                                <input type="number" class="annual-withdrawal" value="0" min="0" step="100" aria-label="Annual Withdrawal for ETF 1 in Dollars" aria-describedby="annual-withdrawal-error-1">
+                                <div id="annual-withdrawal-error-1" class="error-message"></div>
+                            </div>
+                            <div class="input-group">
+                                <label>Annual Return (%)</label>
+                                <input type="number" class="annual-return" value="10" min="0" max="50" step="0.1" aria-label="Annual Return for ETF 1 in Percentage" aria-describedby="annual-return-error-1">
+                                <div id="annual-return-error-1" class="error-message"></div>
+                            </div>
+                            <div class="input-group">
+                                <label>Expense Ratio (%)</label>
+                                <input type="number" class="expense-ratio" value="0.03" min="0" max="5" step="0.01" aria-label="Expense Ratio for ETF 1 in Percentage" aria-describedby="expense-ratio-error-1">
+                                <div id="expense-ratio-error-1" class="error-message"></div>
+                            </div>
+                            <div class="slider-container">
+                                <label for="contribution-range-1">Contribution Timeframe (Years)</label>
+                                <div id="contribution-range-1" class="contribution-range-slider" aria-label="Contribution Timeframe for ETF 1"></div>
+                                <div class="slider-label contribution-timeframe-label">Contributions: Years 1 to 25</div>
+                                <div id="contribution-timeframe-error-1" class="error-message"></div>
+                            </div>
+                            <div class="slider-container">
+                                <label for="withdrawal-range-1">Withdrawal Timeframe (Years)</label>
+                                <div id="withdrawal-range-1" class="withdrawal-range-slider" aria-label="Withdrawal Timeframe for ETF 1"></div>
+                                <div class="slider-label withdrawal-timeframe-label">Withdrawals: Years 1 to 25</div>
+                                <div id="withdrawal-timeframe-error-1" class="error-message"></div>
+                            </div>
+                        </div>
+                        <div class="investment-section real-estate comparison-locked" data-locked="true">
+                            <div class="etf-header">
+                                <span class="etf-title">Investment #2</span>
+                                <button class="remove-btn" onclick="removeInvestment(this)" disabled aria-label="Cannot remove default comparison">Remove</button>
+                            </div>
+                            <div class="input-group">
+                                <label>Investment Type</label>
+                                <input type="text" class="investment-type" value="Real Estate" readonly>
+                            </div>
+                            <div class="input-group">
+                                <label>Investment Name</label>
+                                <input type="text" class="investment-name" value="Primary Residence" placeholder="Enter property name" aria-label="Name of Real Estate Investment">
+                            </div>
+                            <div class="input-group">
+                                <label>Property Value ($)</label>
+                                <input type="number" class="property-value" value="300000" min="10000" step="1000" aria-label="Property Value" aria-describedby="property-value-error">
+                                <div id="property-value-error" class="error-message"></div>
+                            </div>
+                            <div class="input-group">
+                                <label>Down Payment (%)</label>
+                                <input type="number" class="down-payment-percent" value="20" min="5" max="100" step="1" aria-label="Down Payment Percentage" aria-describedby="down-payment-error">
+                                <div id="down-payment-error" class="error-message"></div>
+                            </div>
+                            <div class="input-group">
+                                <label>Mortgage Term (Years)</label>
+                                <input type="number" class="mortgage-term" value="25" min="5" max="30" step="1" aria-label="Mortgage Term in Years" aria-describedby="mortgage-term-error">
+                                <div id="mortgage-term-error" class="error-message"></div>
+                            </div>
+                            <div class="input-group">
+                                <label>Loan Interest Rate (%)</label>
+                                <input type="number" class="loan-interest-rate" value="6.5" min="0.1" max="20" step="0.1" aria-label="Loan Interest Rate Percentage" aria-describedby="loan-interest-error">
+                                <div id="loan-interest-error" class="error-message"></div>
+                            </div>
+                            <div class="input-group">
+                                <label>Annual Appreciation (%)</label>
+                                <input type="number" class="annual-appreciation" value="4.0" min="-5" max="15" step="0.1" aria-label="Annual Appreciation Percentage" aria-describedby="annual-appreciation-error">
+                                <div id="annual-appreciation-error" class="error-message"></div>
+                            </div>
+                            <div class="input-group">
+                                <label>Initial/Closing Costs (as % of Value)</label>
+                                <input type="number" class="closing-costs-percent" value="3" min="0" max="10" step="0.1" aria-label="Initial/Closing Costs Percentage" aria-describedby="closing-costs-error">
+                                <div id="closing-costs-error" class="error-message"></div>
+                            </div>
+                            <div class="input-group">
+                                <label>Annual Expenses (Taxes, Maintenance, etc. - as % of Value)</label>
+                                <input type="number" class="annual-expenses-percent" value="1.5" min="0" max="5" step="0.1" aria-label="Annual Expenses Percentage" aria-describedby="annual-expenses-error">
+                                <div id="annual-expenses-error" class="error-message"></div>
+                            </div>
+                        </div>
+                        <div class="investment-section etf-section comparison-locked" data-locked="true">
+                            <div class="etf-header">
+                                <span class="etf-title">Investment #3</span>
+                                <button class="remove-btn" onclick="removeInvestment(this)" disabled aria-label="Cannot remove default comparison">Remove</button>
+                            </div>
+                            <div class="input-group">
+                                <label>Investment Type</label>
+                                <input type="text" class="investment-type" value="Savings" readonly>
+                            </div>
+                            <div class="input-group">
+                                <label>Initial Investment ($)</label>
+                                <input type="number" class="initial-investment" value="50000" min="0" step="100" aria-label="Initial Investment for Savings in Dollars" aria-describedby="initial-investment-error-3">
+                                <div id="initial-investment-error-3" class="error-message"></div>
+                            </div>
+                            <div class="input-group">
+                                <label>Investment Name</label>
+                                <input type="text" class="investment-name" value="4% Savings Account" aria-label="Name of Savings Account">
+                            </div>
+                            <div class="input-group">
+                                <label>Annual Contribution ($)</label>
+                                <input type="number" class="annual-contribution" value="6000" min="0" step="100" aria-label="Annual Contribution for Savings in Dollars" aria-describedby="annual-contribution-error-3">
+                                <div id="annual-contribution-error-3" class="error-message"></div>
+                            </div>
+                            <div class="input-group">
+                                <label>Annual Withdrawal ($)</label>
+                                <input type="number" class="annual-withdrawal" value="0" min="0" step="100" aria-label="Annual Withdrawal for Savings in Dollars" aria-describedby="annual-withdrawal-error-3">
+                                <div id="annual-withdrawal-error-3" class="error-message"></div>
+                            </div>
+                            <div class="input-group">
+                                <label>Annual Return (%)</label>
+                                <input type="number" class="annual-return" value="4.00" min="0" max="50" step="0.1" aria-label="Annual Return for Savings in Percentage" aria-describedby="annual-return-error-3">
+                                <div id="annual-return-error-3" class="error-message"></div>
+                            </div>
+                            <div class="input-group">
+                                <label>Expense Ratio (%)</label>
+                                <input type="number" class="expense-ratio" value="0.00" min="0" max="5" step="0.01" aria-label="Expense Ratio for Savings in Percentage" aria-describedby="expense-ratio-error-3">
+                                <div id="expense-ratio-error-3" class="error-message"></div>
+                            </div>
+                            <div class="slider-container">
+                                <label for="contribution-range-3">Contribution Timeframe (Years)</label>
+                                <div id="contribution-range-3" class="contribution-range-slider" aria-label="Contribution Timeframe for Savings"></div>
+                                <div class="slider-label contribution-timeframe-label">Contributions: Years 1 to 25</div>
+                                <div id="contribution-timeframe-error-3" class="error-message"></div>
+                            </div>
+                            <div class="slider-container">
+                                <label for="withdrawal-range-3">Withdrawal Timeframe (Years)</label>
+                                <div id="withdrawal-range-3" class="withdrawal-range-slider" aria-label="Withdrawal Timeframe for Savings"></div>
+                                <div class="slider-label withdrawal-timeframe-label">Withdrawals: Years 1 to 25</div>
+                                <div id="withdrawal-timeframe-error-3" class="error-message"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary" onclick="addETF()" aria-label="Add another ETF">Add Another Investment</button>
+                    <button class="btn" onclick="calculateCompounding()" aria-label="Calculate investment growth">Calculate</button>
+                </div>
+            </div>
+        </details>
+        <div class="results-section" aria-live="polite">
+            <h2>Comparison Results</h2>
+            <p><strong>Note:</strong> For Real Estate, the chart and summary <strong>Total Value</strong> shows the <strong>Total Equity</strong> (Appreciated Value - Remaining Mortgage). The <strong>Final Value (Net)</strong> in the summary table calculates Total Equity MINUS (Total Mortgage Interest Paid + Total Annual Expenses Paid) as a simplified profit metric.</p>
+            <div class="compounding-toggle" style="margin-top:min(2vw, 15px);">
+                <label>Breakdown View:</label>
+                <div class="toggle-group">
+                    <button class="toggle-btn active" data-breakdown="yearly" onclick="setBreakdownType('yearly')" aria-label="Select yearly breakdown">Yearly</button>
+                    <button class="toggle-btn" data-breakdown="monthly" onclick="setBreakdownType('monthly')" aria-label="Select monthly breakdown" disabled>Monthly</button>
+                </div>
+            </div>
+            <canvas id="growth-chart" style="max-height: 400px; margin-top: 20px;"></canvas>
+            <div id="results-content">
+                <p>Enter your investment parameters and click "Calculate" to see the comparison results.</p>
+            </div>
+        </div>
+    </div>
+    <script>
+        let investmentCount = 3;
+        let compoundingFrequency = 'yearly';
+        let breakdownType = 'yearly';
+        let lastCalculationResults = null;
+        let chartInstance = null;
+
+        function initializeSliders(parent = document) {
+            const timePeriod = parseInt(document.getElementById('time-period')?.value || 25);
+            parent.querySelectorAll('.contribution-range-slider, .withdrawal-range-slider').forEach(slider => {
+                if (slider.noUiSlider) slider.noUiSlider.destroy();
+                noUiSlider.create(slider, {
+                    start: [1, timePeriod],
+                    connect: true,
+                    range: { 'min': 1, 'max': timePeriod },
+                    step: 1,
+                    tooltips: [true, true],
+                    format: {
+                        to: value => Math.round(value),
+                        from: value => Number(value)
+                    },
+                    ariaFormat: {
+                        to: value => `Year ${Math.round(value)}`
+                    }
+                });
+                slider.noUiSlider.on('update', () => {
+                    updateSliderLabels(slider.closest('.investment-section'));
+                    calculateCompounding();
+                });
+            });
+        }
+
+        function updateInvestmentTitles() {
+            const sections = document.querySelectorAll('#investments-container .investment-section');
+            investmentCount = sections.length;
+            sections.forEach((section, index) => {
+                const title = section.querySelector('.etf-title');
+                if (title) title.textContent = `Investment #${index + 1}`;
+            });
+            updateSliderMaxValues();
+        }
+
+        function updateSliderMaxValues() {
+            const timePeriod = parseInt(document.getElementById('time-period')?.value || 25);
+            document.querySelectorAll('.contribution-range-slider, .withdrawal-range-slider').forEach(slider => {
+                if (slider.noUiSlider) {
+                    slider.noUiSlider.updateOptions({
+                        range: { 'min': 1, 'max': timePeriod }
+                    });
+                    const [start, end] = slider.noUiSlider.get().map(Math.round);
+                    if (end > timePeriod) slider.noUiSlider.set([start, timePeriod]);
+                }
+            });
+            updateSliderLabels();
+        }
+
+        function updateSliderLabels(parent = document) {
+            parent.querySelectorAll('.investment-section').forEach(section => {
+                const contributionSlider = section.querySelector('.contribution-range-slider');
+                const withdrawalSlider = section.querySelector('.withdrawal-range-slider');
+                const contributionLabel = section.querySelector('.contribution-timeframe-label');
+                const withdrawalLabel = section.querySelector('.withdrawal-timeframe-label');
+                if (contributionSlider && contributionSlider.noUiSlider) {
+                    const [start, end] = contributionSlider.noUiSlider.get().map(Math.round);
+                    contributionLabel.textContent = `Contributions: Years ${start} to ${end}`;
+                }
+                if (withdrawalSlider && withdrawalSlider.noUiSlider) {
+                    const [start, end] = withdrawalSlider.noUiSlider.get().map(Math.round);
+                    withdrawalLabel.textContent = `Withdrawals: Years ${start} to ${end}`;
+                }
+            });
+        }
+
+        function setCompoundingFrequency(frequency) {
+            compoundingFrequency = frequency;
+            document.querySelectorAll('.toggle-btn[data-frequency]').forEach(b => b.classList.remove('active'));
+            document.querySelector(`.toggle-btn[data-frequency="${frequency}"]`)?.classList.add('active');
+            calculateCompounding();
+        }
+
+        function setBreakdownType(type) {
+            breakdownType = type;
+            document.querySelectorAll('.toggle-btn[data-breakdown]').forEach(b => b.classList.remove('active'));
+            document.querySelector(`.toggle-btn[data-breakdown="${type}"]`)?.classList.add('active');
+            if (lastCalculationResults) displayResults(lastCalculationResults);
+        }
+
+        function removeInvestment(button) {
+            const section = button.closest('.investment-section');
+            if (section.dataset.locked === 'true') {
+                alert("This comparison investment is locked and cannot be removed.");
+                return;
+            }
+            section.remove();
+            updateInvestmentTitles();
+            calculateCompounding();
+        }
+
+        function addETF() {
+            const timePeriod = parseInt(document.getElementById('time-period')?.value || 25);
+            investmentCount = document.querySelectorAll('#investments-container .investment-section').length + 1;
+            const container = document.getElementById('investments-container');
+            const newInvestment = document.createElement('div');
+            newInvestment.className = 'investment-section etf-section';
+            newInvestment.innerHTML = `
+                <div class="etf-header">
+                    <span class="etf-title">Investment #${investmentCount}</span>
+                    <button class="remove-btn" onclick="removeInvestment(this)" aria-label="Remove Investment ${investmentCount}">Remove</button>
+                </div>
+                <div class="input-group">
+                    <label>Investment Type</label>
+                    <input type="text" class="investment-type" value="ETF" readonly>
+                </div>
+                <div class="input-group">
+                    <label>Initial Investment ($)</label>
+                    <input type="number" class="initial-investment" value="10000" min="0" step="100" aria-label="Initial Investment for ETF ${investmentCount} in Dollars" aria-describedby="initial-investment-error-${investmentCount}">
+                    <div id="initial-investment-error-${investmentCount}" class="error-message"></div>
+                </div>
+                <div class="input-group">
+                    <label>Investment Name</label>
+                    <input type="text" class="investment-name" placeholder="Enter ETF name (e.g., VTI)" aria-label="Name of ETF ${investmentCount}">
+                </div>
+                <div class="input-group">
+                    <label>Annual Contribution ($)</label>
+                    <input type="number" class="annual-contribution" value="6000" min="0" step="100" aria-label="Annual Contribution for ETF ${investmentCount} in Dollars" aria-describedby="annual-contribution-error-${investmentCount}">
+                    <div id="annual-contribution-error-${investmentCount}" class="error-message"></div>
+                </div>
+                <div class="input-group">
+                    <label>Annual Withdrawal ($)</label>
+                    <input type="number" class="annual-withdrawal" value="0" min="0" step="100" aria-label="Annual Withdrawal for ETF ${investmentCount} in Dollars" aria-describedby="annual-withdrawal-error-${investmentCount}">
+                    <div id="annual-withdrawal-error-${investmentCount}" class="error-message"></div>
+                </div>
+                <div class="input-group">
+                    <label>Annual Return (%)</label>
+                    <input type="number" class="annual-return" value="10" min="0" max="50" step="0.1" aria-label="Annual Return for ETF ${investmentCount} in Percentage" aria-describedby="annual-return-error-${investmentCount}">
+                    <div id="annual-return-error-${investmentCount}" class="error-message"></div>
+                </div>
+                <div class="input-group">
+                    <label>Expense Ratio (%)</label>
+                    <input type="number" class="expense-ratio" value="0.09" min="0" max="5" step="0.01" aria-label="Expense Ratio for ETF ${investmentCount} in Percentage" aria-describedby="expense-ratio-error-${investmentCount}">
+                    <div id="expense-ratio-error-${investmentCount}" class="error-message"></div>
+                </div>
+                <div class="slider-container">
+                    <label for="contribution-range-${investmentCount}">Contribution Timeframe (Years)</label>
+                    <div id="contribution-range-${investmentCount}" class="contribution-range-slider" aria-label="Contribution Timeframe for ETF ${investmentCount}"></div>
+                    <div class="slider-label contribution-timeframe-label">Contributions: Years 1 to ${timePeriod}</div>
+                    <div id="contribution-timeframe-error-${investmentCount}" class="error-message"></div>
+                </div>
+                <div class="slider-container">
+                    <label for="withdrawal-range-${investmentCount}">Withdrawal Timeframe (Years)</label>
+                    <div id="withdrawal-range-${investmentCount}" class="withdrawal-range-slider" aria-label="Withdrawal Timeframe for ETF ${investmentCount}"></div>
+                    <div class="slider-label withdrawal-timeframe-label">Withdrawals: Years 1 to ${timePeriod}</div>
+                    <div id="withdrawal-timeframe-error-${investmentCount}" class="error-message"></div>
+                </div>
+            `;
+            container.appendChild(newInvestment);
+            initializeSliders(newInvestment);
+            attachInputListeners(newInvestment);
+            updateSliderLabels(newInvestment);
+            calculateCompounding();
+        }
+
+        function attachInputListeners(parent = document) {
+            const selectors = '#time-period, .initial-investment, .investment-name, .annual-contribution, .annual-withdrawal, .annual-return, .expense-ratio, .property-value, .down-payment-percent, .mortgage-term, .loan-interest-rate, .annual-appreciation, .closing-costs-percent, .annual-expenses-percent';
+            parent.querySelectorAll(selectors).forEach(input => {
+                input.removeEventListener('input', handleInputChange);
+                input.addEventListener('input', handleInputChange);
+            });
+        }
+
+        function handleInputChange(event) {
+            const input = event.target;
+            if (input.id === 'time-period') updateSliderMaxValues();
+            calculateCompounding();
+        }
+
+        function getInputValue(element) {
+            return element ? (parseFloat(element.value) || 0) : 0;
+        }
+
+        function getSliderValues(slider) {
+            return slider && slider.noUiSlider ? slider.noUiSlider.get().map(Math.round) : [1, 25];
+        }
+
+        function validateInputs(section, index) {
+            const errors = [];
+            const name = section.querySelector('.investment-name')?.value || `Investment #${index + 1}`;
+            const type = section.querySelector('.investment-type')?.value;
+            if (type === 'ETF' || type === 'Savings') {
+                const initialInvestment = getInputValue(section.querySelector('.initial-investment'));
+                const annualContribution = getInputValue(section.querySelector('.annual-contribution'));
+                const annualWithdrawal = getInputValue(section.querySelector('.annual-withdrawal'));
+                const annualReturnPercent = getInputValue(section.querySelector('.annual-return'));
+                const expenseRatioPercent = getInputValue(section.querySelector('.expense-ratio'));
+                const [contributionStartYear, contributionEndYear] = getSliderValues(section.querySelector('.contribution-range-slider'));
+                const [withdrawalStartYear, withdrawalEndYear] = getSliderValues(section.querySelector('.withdrawal-range-slider'));
+                const timePeriod = getInputValue(document.getElementById('time-period'));
+                if (initialInvestment < 0) errors.push({ id: `initial-investment-error-${index + 1}`, message: `${name}: Initial investment must be non-negative.` });
+                if (annualContribution < 0) errors.push({ id: `annual-contribution-error-${index + 1}`, message: `${name}: Annual contribution must be non-negative.` });
+                if (annualWithdrawal < 0) errors.push({ id: `annual-withdrawal-error-${index + 1}`, message: `${name}: Annual withdrawal must be non-negative.` });
+                if (annualReturnPercent < 0 || annualReturnPercent > 50) errors.push({ id: `annual-return-error-${index + 1}`, message: `${name}: Annual return must be between 0% and 50%.` });
+                if (expenseRatioPercent < 0 || expenseRatioPercent > 5) errors.push({ id: `expense-ratio-error-${index + 1}`, message: `${name}: Expense ratio must be between 0% and 5%.` });
+                if (contributionStartYear > contributionEndYear) errors.push({ id: `contribution-timeframe-error-${index + 1}`, message: `${name}: Contribution start year must be less than or equal to end year.` });
+                if (withdrawalStartYear > withdrawalEndYear) errors.push({ id: `withdrawal-timeframe-error-${index + 1}`, message: `${name}: Withdrawal start year must be less than or equal to end year.` });
+                if (contributionStartYear < 1 || contributionEndYear > timePeriod) errors.push({ id: `contribution-timeframe-error-${index + 1}`, message: `${name}: Contribution timeframe must be within 1 to ${timePeriod} years.` });
+                if (withdrawalStartYear < 1 || withdrawalEndYear > timePeriod) errors.push({ id: `withdrawal-timeframe-error-${index + 1}`, message: `${name}: Withdrawal timeframe must be within 1 to ${timePeriod} years.` });
+            } else if (type === 'Real Estate') {
+                const propertyValue = getInputValue(section.querySelector('.property-value'));
+                const downPaymentPercent = getInputValue(section.querySelector('.down-payment-percent'));
+                const mortgageTerm = getInputValue(section.querySelector('.mortgage-term'));
+                const loanInterestRate = getInputValue(section.querySelector('.loan-interest-rate'));
+                const annualAppreciation = getInputValue(section.querySelector('.annual-appreciation'));
+                const closingCostsPercent = getInputValue(section.querySelector('.closing-costs-percent'));
+                const annualExpensesPercent = getInputValue(section.querySelector('.annual-expenses-percent'));
+                if (propertyValue <= 0) errors.push({ id: 'property-value-error', message: `${name}: Property value must be positive.` });
+                if (downPaymentPercent < 5 || downPaymentPercent > 100) errors.push({ id: 'down-payment-error', message: `${name}: Down payment must be between 5% and 100%.` });
+                if (mortgageTerm <= 0) errors.push({ id: 'mortgage-term-error', message: `${name}: Mortgage term must be positive.` });
+                if (loanInterestRate < 0) errors.push({ id: 'loan-interest-error', message: `${name}: Loan interest rate must be non-negative.` });
+                if (annualAppreciation < -5 || annualAppreciation > 15) errors.push({ id: 'annual-appreciation-error', message: `${name}: Annual appreciation must be between -5% and 15%.` });
+                if (closingCostsPercent < 0) errors.push({ id: 'closing-costs-error', message: `${name}: Closing costs must be non-negative.` });
+                if (annualExpensesPercent < 0) errors.push({ id: 'annual-expenses-error', message: `${name}: Annual expenses must be non-negative.` });
+            }
+            return errors;
+        }
+
+        function calculateCompoundingInvestment(params) {
+            const { initialInvestment, annualContribution, annualWithdrawal, annualReturnPercent, expenseRatioPercent, timePeriod, contributionStartYear, contributionEndYear, withdrawalStartYear, withdrawalEndYear } = params;
+            const rate = annualReturnPercent / 100;
+            const expense = expenseRatioPercent / 100;
+            const n = compoundingFrequency === 'monthly' ? 12 : 1;
+            const periodicRate = rate / n;
+            const periodicExpense = expense / n;
+            let currentValue = initialInvestment;
+            let totalContributed = initialInvestment;
+            let totalWithdrawn = 0;
+            let totalInterestGained = 0;
+            let totalFeesPaid = 0;
+            const yearlyBreakdown = [];
+            let depletionYear = null;
+            for (let year = 1; year <= timePeriod; year++) {
+                let yearStartValue = currentValue;
+                let yearInterestGained = 0;
+                let yearFeesPaid = 0;
+                let actualAnnualContribution = 0;
+                let actualAnnualWithdrawal = 0;
+                const contributing = year >= contributionStartYear && year <= contributionEndYear;
+                const withdrawing = year >= withdrawalStartYear && year <= withdrawalEndYear;
+                let periodicContribution = contributing ? (annualContribution / n) : 0;
+                let periodicWithdrawal = withdrawing ? (annualWithdrawal / n) : 0;
+                if (compoundingFrequency === 'yearly' && withdrawing) {
+                    periodicWithdrawal = annualWithdrawal; // Apply full withdrawal at once for yearly compounding
+                }
+                for (let period = 1; period <= n; period++) {
+                    if (currentValue <= 0) break; // Stop if account is depleted
+                    currentValue += periodicContribution;
+                    actualAnnualContribution += periodicContribution;
+                    periodicWithdrawal = Math.min(periodicWithdrawal, currentValue); // Cap withdrawal at available balance
+                    currentValue -= periodicWithdrawal;
+                    actualAnnualWithdrawal += periodicWithdrawal;
+                    let interest = currentValue * periodicRate;
+                    let fees = currentValue * periodicExpense;
+                    currentValue += interest - fees;
+                    yearInterestGained += interest;
+                    yearFeesPaid += fees;
+                    if (currentValue < 0) {
+                        currentValue = 0;
+                        depletionYear = year;
+                        break;
+                    }
+                    if (compoundingFrequency === 'yearly') break; // Only one iteration for yearly compounding
+                }
+                totalContributed += actualAnnualContribution;
+                totalWithdrawn += actualAnnualWithdrawal;
+                totalInterestGained += yearInterestGained;
+                totalFeesPaid += yearFeesPaid;
+                yearlyBreakdown.push({ year, startValue: yearStartValue, endValue: currentValue, contribution: actualAnnualContribution, withdrawal: actualAnnualWithdrawal, interestGained: yearInterestGained, feesPaid: yearFeesPaid, depletionYear });
+                if (currentValue <= 0 && depletionYear !== null) {
+                    for (let y = year + 1; y <= timePeriod; y++) {
+                        yearlyBreakdown.push({ year: y, startValue: 0, endValue: 0, contribution: 0, withdrawal: 0, interestGained: 0, feesPaid: 0, depletionYear });
+                    }
+                    break;
+                }
+            }
+            return { finalValue: currentValue, totalContributed, totalWithdrawn, totalInterestGained, totalFeesPaid, yearlyBreakdown, depletionYear };
+        }
+
+        function calculateRealEstate(params) {
+            const { propertyValue, downPaymentPercent, mortgageTerm, loanInterestRate, annualAppreciation, closingCostsPercent, annualExpensesPercent, timePeriod } = params;
+            const downPayment = propertyValue * (downPaymentPercent / 100);
+            const loanAmount = propertyValue - downPayment;
+            const closingCosts = propertyValue * (closingCostsPercent / 100);
+            const totalInitialInvestment = downPayment + closingCosts;
+            const monthlyRate = loanInterestRate / 100 / 12;
+            const totalPayments = mortgageTerm * 12;
+            let monthlyPayment = loanAmount > 0 && monthlyRate > 0 ? loanAmount * (monthlyRate * Math.pow((1 + monthlyRate), totalPayments)) / (Math.pow((1 + monthlyRate), totalPayments) - 1) : loanAmount / totalPayments;
+            let totalPrincipalPaid = 0;
+            let totalInterestPaid = 0;
+            let totalAnnualExpenses = 0;
+            let currentLoanBalance = loanAmount;
+            let currentPropertyValue = propertyValue;
+            const yearlyBreakdown = [];
+            for (let year = 1; year <= timePeriod; year++) {
+                let yearStartValue = currentPropertyValue;
+                let yearPropertyAppreciation = yearStartValue * (annualAppreciation / 100);
+                let yearAnnualExpenses = yearStartValue * (annualExpensesPercent / 100);
+                currentPropertyValue += yearPropertyAppreciation;
+                totalAnnualExpenses += yearAnnualExpenses;
+                let yearPrincipalPaid = 0;
+                let yearInterestPaid = 0;
+                let yearMortgagePayment = 0;
+                let isLoanActive = currentLoanBalance > 0 && year <= mortgageTerm;
+                for (let month = 1; month <= 12 && isLoanActive; month++) {
+                    let monthlyInterest = currentLoanBalance * monthlyRate;
+                    let monthlyPrincipal = monthlyPayment - monthlyInterest;
+                    if (currentLoanBalance - monthlyPrincipal < 0) {
+                        monthlyPrincipal = currentLoanBalance;
+                        monthlyInterest = monthlyPayment - monthlyPrincipal;
+                        currentLoanBalance = 0;
+                        isLoanActive = false;
+                    } else {
+                        currentLoanBalance -= monthlyPrincipal;
+                    }
+                    yearInterestPaid += monthlyInterest;
+                    yearPrincipalPaid += monthlyPrincipal;
+                    yearMortgagePayment += monthlyPayment;
+                }
+                totalPrincipalPaid += yearPrincipalPaid;
+                totalInterestPaid += yearInterestPaid;
+                const netCashflow = -(yearMortgagePayment + yearAnnualExpenses);
+                const currentEquity = currentPropertyValue - currentLoanBalance;
+                yearlyBreakdown.push({ year, propertyValue: currentPropertyValue, loanBalance: currentLoanBalance, annualMortgagePayment: yearMortgagePayment, annualPrincipalPaid: yearPrincipalPaid, annualInterestPaid: yearInterestPaid, annualExpenses: yearAnnualExpenses, propertyAppreciation: yearPropertyAppreciation, netCashflow, currentEquity });
+            }
+            const finalPropertyValue = yearlyBreakdown[timePeriod - 1].propertyValue;
+            const finalLoanBalance = yearlyBreakdown[timePeriod - 1].loanBalance;
+            const finalEquity = finalPropertyValue - finalLoanBalance;
+            const finalValue = finalEquity - totalInterestPaid - totalAnnualExpenses;
+            return { finalValue, totalContributed: totalInitialInvestment + totalPrincipalPaid, totalInterestGained: finalPropertyValue - propertyValue, totalFeesPaid: totalInterestPaid + totalAnnualExpenses + closingCosts, yearlyBreakdown, finalEquity, totalInterestPaid, totalAnnualExpenses };
+        }
+
+        function calculateCompounding() {
+            const resultsContent = document.getElementById('results-content');
+            const timePeriod = getInputValue(document.getElementById('time-period'));
+            const investmentSections = document.querySelectorAll('#investments-container .investment-section');
+            const errors = [];
+            document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
+            if (timePeriod <= 0) {
+                document.getElementById('time-period-error').textContent = 'Time period must be positive.';
+                errors.push('Time period must be positive.');
+            }
+            investmentSections.forEach((section, index) => {
+                validateInputs(section, index).forEach(error => {
+                    document.getElementById(error.id).textContent = error.message;
+                    errors.push(error.message);
+                });
+            });
+            if (errors.length > 0) {
+                resultsContent.innerHTML = `<p style="color: #e74c3c;">Please fix the following errors:</p><ul style="color: #e74c3c;">${errors.map(error => `<li>${error}</li>`).join('')}</ul>`;
+                lastCalculationResults = null;
+                if (chartInstance) chartInstance.destroy();
+                return;
+            }
+            const results = [];
+            investmentSections.forEach((section, index) => {
+                const type = section.querySelector('.investment-type').value;
+                const name = section.querySelector('.investment-name').value || `Unnamed ${type}`;
+                let calculationResult = {};
+                if (type === 'ETF' || type === 'Savings') {
+                    const [contributionStartYear, contributionEndYear] = getSliderValues(section.querySelector('.contribution-range-slider'));
+                    const [withdrawalStartYear, withdrawalEndYear] = getSliderValues(section.querySelector('.withdrawal-range-slider'));
+                    calculationResult = calculateCompoundingInvestment({
+                        initialInvestment: getInputValue(section.querySelector('.initial-investment')),
+                        annualContribution: getInputValue(section.querySelector('.annual-contribution')),
+                        annualWithdrawal: getInputValue(section.querySelector('.annual-withdrawal')),
+                        annualReturnPercent: getInputValue(section.querySelector('.annual-return')),
+                        expenseRatioPercent: getInputValue(section.querySelector('.expense-ratio')),
+                        timePeriod,
+                        contributionStartYear,
+                        contributionEndYear,
+                        withdrawalStartYear,
+                        withdrawalEndYear,
+                        compoundingFrequency
+                    });
+                } else if (type === 'Real Estate') {
+                    calculationResult = calculateRealEstate({
+                        propertyValue: getInputValue(section.querySelector('.property-value')),
+                        downPaymentPercent: getInputValue(section.querySelector('.down-payment-percent')),
+                        mortgageTerm: getInputValue(section.querySelector('.mortgage-term')),
+                        loanInterestRate: getInputValue(section.querySelector('.loan-interest-rate')),
+                        annualAppreciation: getInputValue(section.querySelector('.annual-appreciation')),
+                        closingCostsPercent: getInputValue(section.querySelector('.closing-costs-percent')),
+                        annualExpensesPercent: getInputValue(section.querySelector('.annual-expenses-percent')),
+                        timePeriod
+                    });
+                }
+                results.push({ name, type, timePeriod, ...calculationResult });
+            });
+            lastCalculationResults = results;
+            displayResults(results);
+        }
+
+        function formatCurrency(num) {
+            return typeof num === 'number' ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(Math.round(num)) : '$0';
+        }
+
+        function displayResults(results) {
+            const resultsContent = document.getElementById('results-content');
+            if (!resultsContent || results.length === 0) {
+                resultsContent.innerHTML = '<p>Enter your investment parameters and click "Calculate" to see the comparison results.</p>';
+                return;
+            }
+            let bestValue = -Infinity;
+            let winnerName = '';
+            results.forEach(res => {
+                if (res.finalValue > bestValue) {
+                    bestValue = res.finalValue;
+                    winnerName = res.name;
+                }
+            });
+            let summaryTableHTML = `
+                <h3>Summary After ${results[0].timePeriod} Years</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Investment Name</th>
+                            <th>Type</th>
+                            <th>Final Value (Net)</th>
+                            <th>Total Capital Deployed</th>
+                            <th>Total Interest/Appreciation Gained</th>
+                            <th>Total Fees/Costs Paid</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${results.map(res => `
+                            <tr>
+                                <td><strong>${res.name}</strong></td>
+                                <td>${res.type}</td>
+                                <td class="${res.name === winnerName ? 'best-value' : ''}">${formatCurrency(res.finalValue)}</td>
+                                <td>${formatCurrency(res.totalContributed)}</td>
+                                <td>${formatCurrency(res.totalInterestGained)}</td>
+                                <td>${formatCurrency(res.totalFeesPaid)}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            let breakdownTableHTML = '';
+            if (breakdownType === 'yearly') {
+                const timePeriod = results[0].timePeriod;
+                breakdownTableHTML = `
+                    <h3 style="margin-top: 30px;">Yearly Comparative Breakdown</h3>
+                    <div class="yearly-breakdown-wrapper">
+                        <table class="breakdown-table yearly-comparative" role="grid" aria-label="Yearly Investment Breakdown">
+                            <thead>
+                                <tr class="main-row">
+                                    <th scope="col" aria-label="Year">Year</th>
+                                    ${results.map(res => {
+                                        let headerColor = res.type === 'Real Estate' ? '#FF9800' : res.type === 'Savings' ? '#03A9F4' : '#4CAF50';
+                                        return `<th scope="col" style="background-color: ${headerColor}; color:white">${res.name}</th>`;
+                                    }).join('')}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${Array.from({ length: timePeriod }, (_, i) => {
+                                    const year = i + 1;
+                                    return `
+                                        <tr>
+                                            <td scope="row" aria-label="Year ${year}">${year}</td>
+                                            ${results.map((res, index) => {
+                                                const yearData = res.yearlyBreakdown[year - 1];
+                                                if (!yearData) return `<td>-</td>`;
+                                                const cellId = `year-${year}-investment-${index + 1}`;
+                                                let cellContent = '';
+                                                if (res.type === 'Real Estate') {
+                                                    const cashflowClass = yearData.netCashflow > 0 ? 'positive' : yearData.netCashflow < 0 ? 'negative' : 'zero';
+                                                    cellContent = `
+                                                        <span class="amount-line real-estate-equity">${formatCurrency(yearData.currentEquity)}</span>
+                                                        <span class="detail-line">Equity</span>
+                                                        <span class="amount-line net-cashflow-value ${cashflowClass}">${formatCurrency(yearData.netCashflow)}</span>
+                                                        <span class="detail-line">Net Cashflow</span>
+                                                        <span class="amount-line mortgage-interest-paid">${formatCurrency(yearData.annualInterestPaid)}</span>
+                                                        <span class="detail-line">Mortgage Int. Paid</span>
+                                                        <span class="amount-line property-appreciation">${formatCurrency(yearData.propertyAppreciation)}</span>
+                                                        <span class="detail-line">Appreciation</span>
+                                                    `;
+                                                } else {
+                                                    const netCashFlow = yearData.contribution - yearData.withdrawal;
+                                                    const netCashflowClass = netCashFlow > 0 ? 'positive' : netCashFlow < 0 ? 'negative' : 'zero';
+                                                    cellContent = `
+                                                        <span class="amount-line">${formatCurrency(yearData.endValue)}</span>
+                                                        <span class="detail-line">Total Balance</span>
+                                                        <span class="amount-line interest-gained-value">${formatCurrency(yearData.interestGained)}</span>
+                                                        <span class="detail-line">Interest/Growth</span>
+                                                        <span class="amount-line net-cashflow-value ${netCashflowClass}">${formatCurrency(netCashFlow)}</span>
+                                                        <span class="detail-line">Net Cashflow</span>
+                                                        ${yearData.depletionYear === year ? '<span class="detail-line withdrawal-value">Account Depleted</span>' : ''}
+                                                    `;
+                                                }
+                                                return `
+                                                    <td id="${cellId}" aria-describedby="${cellId}-description">
+                                                        ${cellContent}
+                                                        <span id="${cellId}-description" class="sr-only">
+                                                            ${res.type === 'Real Estate' ?
+                                                                `Year ${year}, ${res.name}: Equity ${formatCurrency(yearData.currentEquity)}, Net Cashflow ${formatCurrency(yearData.netCashflow)}, Mortgage Interest Paid ${formatCurrency(yearData.annualInterestPaid)}, Appreciation ${formatCurrency(yearData.propertyAppreciation)}` :
+                                                                `Year ${year}, ${res.name}: Total Balance ${formatCurrency(yearData.endValue)}, Interest/Growth ${formatCurrency(yearData.interestGained)}, Net Cashflow ${formatCurrency(yearData.contribution - yearData.withdrawal)}${yearData.depletionYear === year ? ', Account Depleted' : ''}`
+                                                            }
+                                                        </span>
+                                                    </td>
+                                                `;
+                                            }).join('')}
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            }
+            resultsContent.innerHTML = summaryTableHTML + breakdownTableHTML;
+            renderChart(results);
+        }
+
+        function renderChart(results) {
+            const ctx = document.getElementById('growth-chart').getContext('2d');
+            const labels = Array.from({ length: results[0].timePeriod }, (_, i) => `Year ${i + 1}`);
+            const datasets = results.map((res, index) => {
+                let color = res.type === 'Real Estate' ? 'rgb(255, 152, 0)' : res.type === 'Savings' ? 'rgb(3, 169, 244)' : index === 0 ? 'rgb(76, 175, 80)' : 'rgb(139, 195, 74)';
+                const data = res.yearlyBreakdown.map(yearData => res.type === 'Real Estate' ? yearData.currentEquity : yearData.endValue);
+                return {
+                    label: res.name + (res.type === 'Real Estate' ? ' (Total Equity)' : ' (Balance)'),
+                    data: data,
+                    borderColor: color,
+                    backgroundColor: color + '40',
+                    borderWidth: 2,
+                    pointRadius: 1,
+                    fill: false,
+                    tension: 0.1
+                };
+            });
+            if (chartInstance) {
+                chartInstance.data.labels = labels;
+                chartInstance.data.datasets = datasets;
+                chartInstance.update();
+            } else {
+                chartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: { labels, datasets },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'top' },
+                            title: { display: true, text: 'Investment Growth Over Time (Total Value)' },
+                            tooltip: {
+                                callbacks: {
+                                    label: context => {
+                                        let label = context.dataset.label || '';
+                                        if (label) label += ': ';
+                                        if (context.parsed.y !== null) label += formatCurrency(context.parsed.y);
+                                        return label;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: { display: true, text: 'Value ($)' },
+                                ticks: { callback: value => formatCurrency(value) }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateInvestmentTitles();
+            initializeSliders();
+            attachInputListeners();
+            updateSliderLabels();
+            calculateCompounding();
+        });
+    </script>
+</body>
+</html>
+```
