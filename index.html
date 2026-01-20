@@ -53,11 +53,6 @@
             font-weight: 600;
             color: #2c3e50;
             font-size: clamp(1rem, 3vw, 1.2rem);
-            transition: background 0.3s;
-        }
-
-        summary:hover {
-            background: #d8dfe6;
         }
 
         .investment-section {
@@ -69,47 +64,9 @@
             border: 1px solid #e9ecef;
         }
 
-        .investment-section.real-estate {
-            border-left: 5px solid #FF9800;
-        }
+        .investment-section.real-estate { border-left: 5px solid #FF9800; }
 
-        .etf-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: min(2vw, 15px);
-        }
-
-        .etf-title {
-            font-weight: 600;
-            color: #2c3e50;
-            font-size: clamp(0.9rem, 3vw, 1.1rem);
-        }
-
-        .remove-btn {
-            background: #e74c3c;
-            color: white;
-            border: none;
-            padding: min(1vw, 8px) min(2vw, 12px);
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: clamp(0.7rem, 2.5vw, 0.8rem);
-            transition: background 0.3s;
-            min-width: 60px;
-        }
-
-        .remove-btn:hover {
-            background: #c0392b;
-        }
-
-        .comparison-locked .remove-btn {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-
-        .input-group {
-            margin-bottom: min(2.5vw, 20px);
-        }
+        .input-group { margin-bottom: min(2.5vw, 20px); }
 
         label {
             display: block;
@@ -119,35 +76,11 @@
             font-size: clamp(0.85rem, 2.8vw, 0.95rem);
         }
 
-        input[type="number"], input[type="text"], select {
+        input[type="number"], input[type="text"] {
             width: 100%;
             padding: min(1.5vw, 12px);
             border: 2px solid #e9ecef;
             border-radius: 8px;
-            font-size: clamp(0.85rem, 2.8vw, 1rem);
-            transition: border-color 0.3s, box-shadow 0.3s;
-        }
-
-        input[type="number"]:focus, input[type="text"]:focus, select:focus {
-            outline: none;
-            border-color: #4CAF50;
-            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
-        }
-
-        input[type="range"] {
-            width: 100%;
-            margin: min(1vw, 8px) 0;
-            cursor: pointer;
-        }
-
-        .slider-container {
-            margin-bottom: min(2.5vw, 20px);
-        }
-
-        .slider-label {
-            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
-            color: #34495e;
-            margin-top: min(1vw, 8px);
         }
 
         .btn {
@@ -157,71 +90,11 @@
             padding: min(1.5vw, 12px) min(3vw, 24px);
             border-radius: 8px;
             cursor: pointer;
-            font-size: clamp(0.85rem, 2.8vw, 1rem);
             font-weight: 500;
-            transition: transform 0.2s, box-shadow 0.2s;
-            margin-right: min(1.5vw, 10px);
-            margin-bottom: min(1.5vw, 10px);
-            min-width: 100px;
+            margin-right: 10px;
         }
 
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
-        }
-
-        .btn-secondary {
-            background: #6c757d;
-        }
-
-        .btn-secondary:hover {
-            box-shadow: 0 5px 15px rgba(108, 117, 125, 0.4);
-        }
-
-        .results-section {
-            background: #f8f9fa;
-            padding: min(3vw, 25px);
-            border-radius: 1rem;
-            border-left: 5px solid #28a745;
-        }
-
-        .comparison-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: min(2.5vw, 20px);
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
-        }
-
-        .comparison-table th {
-            background: #4CAF50;
-            color: white;
-            font-weight: 600;
-            position: sticky;
-            top: 0;
-            z-index: 1;
-        }
-
-        .comparison-table th,
-        .comparison-table td {
-            padding: min(1.5vw, 12px);
-            text-align: center;
-            border-bottom: 1px solid #e9ecef;
-        }
-        
-        .comparison-table tr:last-child td {
-            border-bottom: none;
-        }
-
-        .best-value {
-            color: #155724;
-            font-weight: 700;
-        }
-
-        /* --- STICKY COLUMN CSS IMPLEMENTATION --- */
+        /* --- STICKY COLUMN & TABLE STYLING --- */
         .yearly-breakdown-wrapper {
             overflow-x: auto;
             margin-top: min(2.5vw, 20px);
@@ -233,40 +106,31 @@
             background: white;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            font-size: clamp(0.75rem, 2.5vw, 0.85rem);
             min-width: max-content; 
         }
 
-        .breakdown-table th,
-        .breakdown-table td {
+        .breakdown-table th, .breakdown-table td {
             padding: min(1.5vw, 12px);
             text-align: center;
             border-bottom: 1px solid #e9ecef;
             border-right: 1px solid #e9ecef;
             vertical-align: top;
         }
-        
-        .breakdown-table th:last-child,
-        .breakdown-table td:last-child {
-            border-right: none;
-        }
 
-        .breakdown-table.yearly-comparative th,
         .breakdown-table.yearly-comparative td {
-            min-width: 180px; /* Slightly wider to accommodate principal line */
-            line-height: 1.2;
+            min-width: 200px; /* Increased to fit new Home Value line */
         }
 
-        /* Header stickiness (vertical) */
+        /* Freeze Header */
         .breakdown-table th {
             position: sticky;
             top: 0;
             z-index: 30;
         }
 
-        /* First Column Stickiness (horizontal) */
+        /* Freeze Year Column */
         .breakdown-table .main-row th:first-child,
-        .breakdown-table .yearly-comparative tbody tr td:first-child {
+        .breakdown-table tbody tr td:first-child {
             position: sticky;
             left: 0;
             background-color: #f0f0f0; 
@@ -276,338 +140,173 @@
             border-right: 2px solid #ccc;
         }
         
-        /* Top-left corner stickiness */
-        .breakdown-table .main-row th:first-child {
-            z-index: 40; 
-        }
+        .breakdown-table .main-row th:first-child { z-index: 40; }
 
-        /* --- STYLING FOR BREAKDOWN CONTENT --- */
-        .breakdown-table.yearly-comparative thead tr.main-row th:first-child {
-            background: #4CAF50;
-        }
+        /* Typography */
+        .amount-line { display: block; font-weight: 600; font-size: 1.1em; margin-bottom: 2px; }
+        .detail-line { display: block; font-size: 0.75em; margin-bottom: 6px; color: #666; }
 
-        .breakdown-table.yearly-comparative td .amount-line {
-            display: block;
-            font-weight: 600;
-            font-size: 1.1em;
-            margin-bottom: 3px;
-        }
+        /* Data Colors */
+        .home-value { color: #2c3e50; }
+        .real-estate-equity { color: #03A9F4; }
+        .principal-paid { color: #008080; }
+        .mortgage-interest-paid { color: #e74c3c; }
+        .negative { color: #e74c3c; }
+        .positive { color: #28a745; }
 
-        .breakdown-table.yearly-comparative td .detail-line {
-            display: block;
-            font-size: 0.75em;
-            margin-top: 2px;
-            margin-bottom: 5px;
-        }
-
-        .interest-gained-value { color: #28a745; font-weight: 600; }
-        .real-estate-equity { color: #03A9F4; font-weight: 600; }
-        .mortgage-interest-paid { color: #e74c3c; font-weight: 500; }
-        .principal-paid { color: #008080; font-weight: 600; } /* Teal for principal */
-        .property-appreciation { color: #FFC107; font-weight: 500; }
-
-        .net-cashflow-value.positive { color: #007bff; }
-        .net-cashflow-value.negative { color: #e74c3c; }
-        .net-cashflow-value.zero { color: #6c757d; }
-        
         .toggle-group button {
-            background-color: #e9ecef;
-            border: 1px solid #ced4da;
-            color: #495057;
             padding: 8px 15px;
             cursor: pointer;
-            transition: background-color 0.2s;
         }
-        
-        .toggle-group button:first-child { border-radius: 6px 0 0 6px; }
-        .toggle-group button:last-child { border-radius: 0 6px 6px 0; }
-        .toggle-group button.active { background-color: #4CAF50; color: white; border-color: #4CAF50; }
+        .active { background: #4CAF50; color: white; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Investment & Real Estate Comparison Calculator</h1>
+        <h1>Investment & Real Estate Comparison</h1>
 
         <details class="input-section" open>
-            <summary>Investment Parameters</summary>
-            <div class="calculator-section">
-                <div>
-                    <h2>Global Parameters</h2>
-                    <div class="input-group">
-                        <label for="time-period">Time Period (Years)</label>
-                        <input type="number" id="time-period" value="25" min="1" max="50" step="1">
-                    </div>
-                    <div class="compounding-toggle">
-                        <label>Compounding Frequency:</label>
-                        <div class="toggle-group">
-                            <button class="toggle-btn" data-frequency="monthly" onclick="setCompoundingFrequency('monthly')">Monthly</button>
-                            <button class="toggle-btn active" data-frequency="yearly" onclick="setCompoundingFrequency('yearly')">Yearly</button>
-                        </div>
-                    </div>
+            <summary>Parameters</summary>
+            <div class="input-group">
+                <label>Time Period (Years)</label>
+                <input type="number" id="time-period" value="25">
+            </div>
 
-                    <div id="investments-container">
-                        <div class="investment-section etf-section">
-                            <div class="etf-header">
-                                <span class="etf-title">Investment #1</span>
-                                <button class="remove-btn" onclick="removeInvestment(this)">Remove</button>
-                            </div>
-                            <div class="input-group">
-                                <label>Investment Type</label>
-                                <input type="text" class="investment-type" value="ETF" readonly>
-                            </div>
-                            <div class="input-group">
-                                <label>Initial Investment ($)</label>
-                                <input type="number" class="initial-investment" value="50000">
-                            </div>
-                            <div class="input-group">
-                                <label>Investment Name</label>
-                                <input type="text" class="investment-name" value="High-Growth ETF (VOO)">
-                            </div>
-                            <div class="input-group">
-                                <label>Annual Contribution ($)</label>
-                                <input type="number" class="annual-contribution" value="6000">
-                            </div>
-                            <div class="input-group">
-                                <label>Annual Return (%)</label>
-                                <input type="number" class="annual-return" value="10">
-                            </div>
-                            <div class="input-group">
-                                <label>Expense Ratio (%)</label>
-                                <input type="number" class="expense-ratio" value="0.03">
-                            </div>
-                            <div class="slider-container">
-                                <label>Contribution Timeframe (Years)</label>
-                                <input type="range" class="contribution-start-year" min="1" max="25" value="1">
-                                <input type="range" class="contribution-end-year" min="1" max="25" value="25">
-                                <div class="slider-label contribution-timeframe-label">Contributions: Years 1 to 25</div>
-                            </div>
-                            <input type="hidden" class="annual-withdrawal" value="0">
-                            <input type="hidden" class="withdrawal-start-year" value="1">
-                            <input type="hidden" class="withdrawal-end-year" value="25">
-                        </div>
+            <div id="investments-container">
+                <div class="investment-section etf-section">
+                    <h3>Investment #1 (ETF)</h3>
+                    <input type="hidden" class="investment-type" value="ETF">
+                    <input type="text" class="investment-name" value="S&P 500 ETF">
+                    <label>Initial Investment ($)</label><input type="number" class="initial-investment" value="50000">
+                    <label>Annual Contribution ($)</label><input type="number" class="annual-contribution" value="6000">
+                    <label>Return (%)</label><input type="number" class="annual-return" value="10">
+                    <input type="hidden" class="expense-ratio" value="0.03">
+                </div>
 
-                        <div class="investment-section real-estate comparison-locked" data-locked="true">
-                            <div class="etf-header">
-                                <span class="etf-title">Investment #2</span>
-                            </div>
-                            <div class="input-group">
-                                <label>Investment Type</label>
-                                <input type="text" class="investment-type" value="Real Estate" readonly>
-                            </div>
-                            <div class="input-group">
-                                <label>Investment Name</label>
-                                <input type="text" class="investment-name" value="Primary Residence">
-                            </div>
-                            <div class="input-group">
-                                <label>Property Value ($)</label>
-                                <input type="number" class="property-value" value="300000">
-                            </div>
-                            <div class="input-group">
-                                <label>Down Payment (%)</label>
-                                <input type="number" class="down-payment-percent" value="20">
-                            </div>
-                            <div class="input-group">
-                                <label>Mortgage Term (Years)</label>
-                                <input type="number" class="mortgage-term" value="25">
-                            </div>
-                            <div class="input-group">
-                                <label>Loan Interest Rate (%)</label>
-                                <input type="number" class="loan-interest-rate" value="6.5">
-                            </div>
-                            <div class="input-group">
-                                <label>Annual Appreciation (%)</label>
-                                <input type="number" class="annual-appreciation" value="4.0">
-                            </div>
-                            <div class="input-group">
-                                <label>Annual Expenses (Taxes/Maint. %)</label>
-                                <input type="number" class="annual-expenses-percent" value="1.5">
-                            </div>
-                            <input type="hidden" class="closing-costs-percent" value="3">
-                        </div>
-                    </div>
-
-                    <button class="btn btn-secondary" onclick="addETF()">Add Another Investment</button>
-                    <button class="btn" onclick="calculateCompounding()">Calculate</button>
+                <div class="investment-section real-estate">
+                    <h3>Investment #2 (Real Estate)</h3>
+                    <input type="hidden" class="investment-type" value="Real Estate">
+                    <input type="text" class="investment-name" value="Primary Residence">
+                    <label>Property Value ($)</label><input type="number" class="property-value" value="300000">
+                    <label>Down Payment (%)</label><input type="number" class="down-payment-percent" value="20">
+                    <label>Interest Rate (%)</label><input type="number" class="loan-interest-rate" value="6.5">
+                    <label>Appreciation (%)</label><input type="number" class="annual-appreciation" value="4">
+                    <label>Expenses (%)</label><input type="number" class="annual-expenses-percent" value="1.5">
+                    <input type="hidden" class="mortgage-term" value="25">
                 </div>
             </div>
+            <button class="btn" onclick="calculateCompounding()">Calculate</button>
         </details>
 
-        <div class="results-section" aria-live="polite">
-            <h2>Comparison Results</h2>
-            <canvas id="growth-chart" style="max-height: 400px; margin-top: 20px;"></canvas>
+        <div class="results-section">
+            <canvas id="growth-chart" style="max-height: 300px;"></canvas>
             <div id="results-content"></div>
         </div>
     </div>
 
     <script>
-        let investmentCount = 2;
-        let compoundingFrequency = 'yearly';
-        let breakdownType = 'yearly';
-        let lastCalculationResults = null;
         let chartInstance = null;
 
-        function updateInvestmentTitles() {
-            const sections = document.querySelectorAll('#investments-container .investment-section');
-            sections.forEach((section, index) => {
-                const title = section.querySelector('.etf-title');
-                if (title) title.textContent = `Investment #${index + 1}`;
-            });
-            updateSliderMaxValues();
-        }
-
-        function updateSliderMaxValues() {
-            const timePeriod = parseInt(document.getElementById('time-period').value) || 25;
-            document.querySelectorAll('input[type="range"]').forEach(slider => {
-                slider.max = timePeriod;
-                if (parseInt(slider.value) > timePeriod) slider.value = timePeriod;
-            });
-            updateSliderLabels();
-        }
-
-        function updateSliderLabels(parent = document) {
-            parent.querySelectorAll('.investment-section').forEach(section => {
-                const start = section.querySelector('.contribution-start-year');
-                const end = section.querySelector('.contribution-end-year');
-                const label = section.querySelector('.contribution-timeframe-label');
-                if (start && end && label) {
-                    if (parseInt(start.value) > parseInt(end.value)) end.value = start.value;
-                    label.textContent = `Contributions: Years ${start.value} to ${end.value}`;
-                }
-            });
-        }
-
-        function setCompoundingFrequency(f) {
-            compoundingFrequency = f;
-            document.querySelectorAll('[data-frequency]').forEach(b => b.classList.toggle('active', b.dataset.frequency === f));
-            calculateCompounding();
-        }
-
-        function removeInvestment(btn) {
-            btn.closest('.investment-section').remove();
-            updateInvestmentTitles();
-            calculateCompounding();
-        }
-
-        function addETF() {
-            const tp = document.getElementById('time-period').value;
-            const container = document.getElementById('investments-container');
-            const div = document.createElement('div');
-            div.className = 'investment-section etf-section';
-            div.innerHTML = `
-                <div class="etf-header"><span class="etf-title"></span><button class="remove-btn" onclick="removeInvestment(this)">Remove</button></div>
-                <div class="input-group"><label>Type</label><input type="text" class="investment-type" value="ETF" readonly></div>
-                <div class="input-group"><label>Initial Investment ($)</label><input type="number" class="initial-investment" value="10000"></div>
-                <div class="input-group"><label>Name</label><input type="text" class="investment-name" placeholder="ETF Name"></div>
-                <div class="input-group"><label>Annual Contribution ($)</label><input type="number" class="annual-contribution" value="6000"></div>
-                <div class="input-group"><label>Annual Return (%)</label><input type="number" class="annual-return" value="10"></div>
-                <div class="input-group"><label>Expense Ratio (%)</label><input type="number" class="expense-ratio" value="0.05"></div>
-                <div class="slider-container">
-                    <label>Contribution Years</label>
-                    <input type="range" class="contribution-start-year" min="1" max="${tp}" value="1">
-                    <input type="range" class="contribution-end-year" min="1" max="${tp}" value="${tp}">
-                    <div class="slider-label contribution-timeframe-label"></div>
-                </div>
-                <input type="hidden" class="annual-withdrawal" value="0">
-                <input type="hidden" class="withdrawal-start-year" value="1">
-                <input type="hidden" class="withdrawal-end-year" value="${tp}">`;
-            container.appendChild(div);
-            attachListeners(div);
-            updateInvestmentTitles();
-            calculateCompounding();
-        }
-
-        function attachListeners(parent = document) {
-            parent.querySelectorAll('input').forEach(input => {
-                input.addEventListener('input', () => {
-                    if (input.id === 'time-period') updateSliderMaxValues();
-                    updateSliderLabels(input.closest('.investment-section'));
-                    calculateCompounding();
-                });
-            });
-        }
-
         function getVal(el) { return el ? (parseFloat(el.value) || 0) : 0; }
-
-        function calculateCompoundingInvestment(p) {
-            const n = compoundingFrequency === 'monthly' ? 12 : 1;
-            const pRate = (p.annualReturnPercent / 100) / n;
-            const pExp = (p.expenseRatioPercent / 100) / n;
-            let val = p.initialInvestment, totalCont = p.initialInvestment, totalInt = 0, totalFees = 0, breakdown = [];
-
-            for (let y = 1; y <= p.timePeriod; y++) {
-                let start = val, yInt = 0, yFees = 0, yCont = (y >= p.contributionStartYear && y <= p.contributionEndYear) ? p.annualContribution : 0;
-                const pCont = yCont / n;
-                for (let i = 0; i < n; i++) {
-                    val += pCont;
-                    let interest = val * pRate, fees = val * pExp;
-                    val += (interest - fees);
-                    yInt += interest; yFees += fees;
-                }
-                totalCont += yCont; totalInt += yInt; totalFees += yFees;
-                breakdown.push({ year: y, endValue: val, contribution: yCont, withdrawal: 0, interestGained: yInt });
-            }
-            return { finalValue: val, totalContributed: totalCont, totalInterestGained: totalInt, totalFeesPaid: totalFees, yearlyBreakdown: breakdown };
-        }
-
-        function calculateRealEstate(p) {
-            const down = p.propertyValue * (p.downPaymentPercent / 100), loan = p.propertyValue - down;
-            const mRate = p.loanInterestRate / 100 / 12, mTerm = p.mortgageTerm * 12;
-            const mPay = loan > 0 ? (loan * (mRate * Math.pow(1+mRate, mTerm)) / (Math.pow(1+mRate, mTerm) - 1)) : 0;
-            let totalPrin = 0, totalInt = 0, totalExp = 0, balance = loan, propVal = p.propertyValue, breakdown = [];
-
-            for (let y = 1; y <= p.timePeriod; y++) {
-                let yAppr = propVal * (p.annualAppreciation / 100), yExp = propVal * (p.annualExpensesPercent / 100);
-                propVal += yAppr; totalExp += yExp;
-                let yPrin = 0, yMortInt = 0, yMortPay = 0;
-                for (let m = 0; m < 12 && y <= p.mortgageTerm; m++) {
-                    let mInt = balance * mRate, mPrin = mPay - mInt;
-                    if (balance < mPrin) mPrin = balance;
-                    balance -= mPrin; yPrin += mPrin; yMortInt += mInt; yMortPay += mPay;
-                }
-                totalPrin += yPrin; totalInt += yMortInt;
-                breakdown.push({ year: y, propertyValue: propVal, loanBalance: balance, annualMortgagePayment: yMortPay, annualPrincipalPaid: yPrin, annualInterestPaid: yMortInt, annualExpenses: yExp, propertyAppreciation: yAppr, currentEquity: propVal - balance, netCashflow: -(yMortPay + yExp) });
-            }
-            const equity = propVal - balance;
-            return { finalValue: equity - totalInt - totalExp, totalContributed: down + totalPrin, totalInterestGained: propVal - p.propertyValue, totalFeesPaid: totalInt + totalExp, yearlyBreakdown: breakdown };
-        }
 
         function calculateCompounding() {
             const tp = getVal(document.getElementById('time-period'));
             const results = [];
+            
             document.querySelectorAll('.investment-section').forEach(sec => {
                 const type = sec.querySelector('.investment-type').value;
-                const name = sec.querySelector('.investment-name').value || `Unnamed ${type}`;
-                let res = type === 'Real Estate' ? calculateRealEstate({ propertyValue: getVal(sec.querySelector('.property-value')), downPaymentPercent: getVal(sec.querySelector('.down-payment-percent')), mortgageTerm: getVal(sec.querySelector('.mortgage-term')), loanInterestRate: getVal(sec.querySelector('.loan-interest-rate')), annualAppreciation: getVal(sec.querySelector('.annual-appreciation')), annualExpensesPercent: getVal(sec.querySelector('.annual-expenses-percent')), timePeriod: tp })
-                                                 : calculateCompoundingInvestment({ initialInvestment: getVal(sec.querySelector('.initial-investment')), annualContribution: getVal(sec.querySelector('.annual-contribution')), annualReturnPercent: getVal(sec.querySelector('.annual-return')), expenseRatioPercent: getVal(sec.querySelector('.expense-ratio')), timePeriod: tp, contributionStartYear: getVal(sec.querySelector('.contribution-start-year')), contributionEndYear: getVal(sec.querySelector('.contribution-end-year')) });
-                results.push({ name, type, ...res });
+                const name = sec.querySelector('.investment-name').value;
+                
+                if (type === 'Real Estate') {
+                    results.push({ name, type, ...calculateRealEstate(sec, tp) });
+                } else {
+                    results.push({ name, type, ...calculateETF(sec, tp) });
+                }
             });
-            lastCalculationResults = results;
+
             displayResults(results);
+        }
+
+        function calculateETF(sec, tp) {
+            let val = getVal(sec.querySelector('.initial-investment'));
+            const cont = getVal(sec.querySelector('.annual-contribution'));
+            const rate = getVal(sec.querySelector('.annual-return')) / 100;
+            let breakdown = [];
+            for (let y = 1; y <= tp; y++) {
+                let interest = (val + cont) * rate;
+                val += cont + interest;
+                breakdown.push({ year: y, endValue: val, growth: interest, contribution: cont });
+            }
+            return { yearlyBreakdown: breakdown };
+        }
+
+        function calculateRealEstate(sec, tp) {
+            let propVal = getVal(sec.querySelector('.property-value'));
+            const down = propVal * (getVal(sec.querySelector('.down-payment-percent')) / 100);
+            const rate = getVal(sec.querySelector('.loan-interest-rate')) / 100 / 12;
+            const appr = getVal(sec.querySelector('.annual-appreciation')) / 100;
+            const expRate = getVal(sec.querySelector('.annual-expenses-percent')) / 100;
+            let balance = propVal - down;
+            const mPay = balance * (rate * Math.pow(1+rate, 300)) / (Math.pow(1+rate, 300) - 1);
+            
+            let breakdown = [];
+            for (let y = 1; y <= tp; y++) {
+                let yAppr = propVal * appr;
+                propVal += yAppr;
+                let yPrin = 0, yInt = 0;
+                for (let m = 0; m < 12; m++) {
+                    let mInt = balance * rate;
+                    let mPrin = mPay - mInt;
+                    balance -= mPrin;
+                    yPrin += mPrin;
+                    yInt += mInt;
+                }
+                breakdown.push({
+                    year: y,
+                    propertyValue: propVal,
+                    currentEquity: propVal - balance,
+                    annualPrincipalPaid: yPrin,
+                    annualInterestPaid: yInt,
+                    propertyAppreciation: yAppr,
+                    netCashflow: -(mPay * 12 + (propVal * expRate))
+                });
+            }
+            return { yearlyBreakdown: breakdown };
         }
 
         function formatCurrency(num) { return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(num); }
 
         function displayResults(results) {
             const content = document.getElementById('results-content');
-            let table = `<h3 style="margin-top:30px">Yearly Comparative Breakdown</h3><div class="yearly-breakdown-wrapper"><table class="breakdown-table yearly-comparative"><thead><tr class="main-row"><th rowspan="2">Year</th>`;
+            let table = `<div class="yearly-breakdown-wrapper"><table class="breakdown-table yearly-comparative"><thead><tr class="main-row"><th rowspan="2">Year</th>`;
+            
             results.forEach(res => {
                 let color = res.type === 'Real Estate' ? '#FF9800' : '#4CAF50';
                 table += `<th colspan="2" style="background:${color};color:white">${res.name}</th>`;
             });
             table += `</tr><tr class="sub-row">`;
-            results.forEach(res => table += res.type === 'Real Estate' ? `<th>Equity / Net Cashflow</th><th>Debt / Cost / Principal</th>` : `<th>Balance</th><th>Growth / Net Cashflow</th>`);
+            results.forEach(res => table += res.type === 'Real Estate' ? `<th>Value / Equity / Cashflow</th><th>Debt / Principal Breakdown</th>` : `<th>Balance</th><th>Growth / Contribution</th>`);
             table += `</tr></thead><tbody>`;
 
-            for (let y = 1; y <= results[0].yearlyBreakdown.length; y++) {
-                table += `<tr><td>${y}</td>`;
+            for (let y = 0; y < results[0].yearlyBreakdown.length; y++) {
+                table += `<tr><td>${y+1}</td>`;
                 results.forEach(res => {
-                    const data = res.yearlyBreakdown[y-1];
+                    const d = res.yearlyBreakdown[y];
                     if (res.type === 'Real Estate') {
-                        table += `<td><span class="amount-line real-estate-equity">${formatCurrency(data.currentEquity)}</span><span class="detail-line">Equity</span><span class="amount-line net-cashflow-value negative">${formatCurrency(data.netCashflow)}</span><span class="detail-line">Annual Cashflow</span></td>
-                                  <td><span class="amount-line principal-paid">${formatCurrency(data.annualPrincipalPaid)}</span><span class="detail-line">Principal Paid</span><span class="amount-line mortgage-interest-paid">${formatCurrency(data.annualInterestPaid)}</span><span class="detail-line">Interest Paid</span><span class="amount-line property-appreciation">${formatCurrency(data.propertyAppreciation)}</span><span class="detail-line">Appreciation</span></td>`;
+                        table += `<td>
+                                    <span class="amount-line home-value">${formatCurrency(d.propertyValue)}</span><span class="detail-line">Home Value</span>
+                                    <span class="amount-line real-estate-equity">${formatCurrency(d.currentEquity)}</span><span class="detail-line">Equity</span>
+                                    <span class="amount-line negative">${formatCurrency(d.netCashflow)}</span><span class="detail-line">Annual Cashflow</span>
+                                  </td>
+                                  <td>
+                                    <span class="amount-line principal-paid">${formatCurrency(d.annualPrincipalPaid)}</span><span class="detail-line">Principal Paid</span>
+                                    <span class="amount-line mortgage-interest-paid">${formatCurrency(d.annualInterestPaid)}</span><span class="detail-line">Interest Paid</span>
+                                    <span class="amount-line positive">${formatCurrency(d.propertyAppreciation)}</span><span class="detail-line">Appreciation</span>
+                                  </td>`;
                     } else {
-                        table += `<td><span class="amount-line">${formatCurrency(data.endValue)}</span><span class="detail-line">Balance</span></td>
-                                  <td><span class="amount-line interest-gained-value">${formatCurrency(data.interestGained)}</span><span class="detail-line">Growth</span><span class="detail-line net-cashflow-value positive">Cashflow: ${formatCurrency(data.contribution)}</span></td>`;
+                        table += `<td><span class="amount-line">${formatCurrency(d.endValue)}</span><span class="detail-line">Balance</span></td>
+                                  <td><span class="amount-line positive">${formatCurrency(d.growth)}</span><span class="detail-line">Growth</span>
+                                      <span class="amount-line">${formatCurrency(d.contribution)}</span><span class="detail-line">Contribution</span></td>`;
                     }
                 });
                 table += `</tr>`;
@@ -624,7 +323,7 @@
                 data: {
                     labels: results[0].yearlyBreakdown.map(d => `Year ${d.year}`),
                     datasets: results.map((res, i) => ({
-                        label: res.name,
+                        label: res.name + (res.type === 'Real Estate' ? ' (Equity)' : ''),
                         data: res.yearlyBreakdown.map(d => res.type === 'Real Estate' ? d.currentEquity : d.endValue),
                         borderColor: res.type === 'Real Estate' ? 'orange' : (i === 0 ? 'green' : 'blue'),
                         fill: false
@@ -633,12 +332,6 @@
                 options: { responsive: true, maintainAspectRatio: false }
             });
         }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            updateSliderMaxValues();
-            attachListeners();
-            calculateCompounding();
-        });
     </script>
 </body>
 </html>
