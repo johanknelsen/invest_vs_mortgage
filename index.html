@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Total Net Worth & Wealth Simulator</title>
+    <title>Net Worth & Home Appreciation Simulator</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -14,7 +14,7 @@
             color: #0f172a;
         }
         .container {
-            max-width: 1700px;
+            max-width: 1750px;
             margin: 0 auto;
             background: white;
             border-radius: 16px;
@@ -44,19 +44,23 @@
         .btn-calc { background: #0f172a; color: white; width: 220px; }
 
         .table-scroll { overflow-x: auto; margin-top: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        table { border-collapse: collapse; width: 100%; background: white; min-width: 1400px; }
-        th, td { padding: 12px; text-align: center; border: 1px solid #f1f5f9; font-size: 0.85rem; }
+        table { border-collapse: collapse; width: 100%; background: white; min-width: 1500px; }
+        th, td { padding: 12px; text-align: center; border: 1px solid #f1f5f9; font-size: 0.85rem; vertical-align: top;}
         th { background: #f8fafc; font-weight: 700; position: sticky; top: 0; z-index: 10; }
         
-        /* Freeze Year Column */
         td:first-child, th:first-child { position: sticky; left: 0; z-index: 11; background: #f8fafc; border-right: 2px solid #e2e8f0; width: 60px; font-weight: bold; }
         
         .total-nw-col { background: #f5f3ff; border-left: 3px solid #6366f1 !important; font-weight: bold; }
-        .amt { display: block; font-weight: 700; font-size: 0.95rem; }
-        .lbl { display: block; font-size: 0.65rem; color: #94a3b8; text-transform: uppercase; margin-top: 1px; }
-        .roi-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 0.75rem; margin-top: 4px; }
+        .amt { display: block; font-weight: 700; font-size: 1rem; }
+        .lbl { display: block; font-size: 0.65rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px; }
+        .roi-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 0.75rem; margin-bottom: 6px; }
         .pos { color: #10b981; } .pos-bg { background: #dcfce7; color: #166534; }
         .neg { color: #ef4444; } .neg-bg { background: #fee2e2; color: #991b1b; }
+        
+        /* Specific data colors */
+        .home-val-amt { color: #334155; }
+        .equity-amt { color: #10b981; }
+        .loan-amt { color: #ef4444; }
         .nw-amt { color: #4f46e5; font-size: 1.1rem; }
     </style>
 </head>
@@ -64,7 +68,7 @@
 
 <div class="container">
     <div class="header">
-        <h1>Net Worth & Wealth Simulator</h1>
+        <h1>Wealth & Home Value Appreciation Simulator</h1>
     </div>
 
     <div class="input-section">
@@ -110,7 +114,7 @@ function addCard(type) {
                 <div><label>Annual Contrib. ($)</label><input type="number" class="cont" value="12000"></div>
             </div>
             <div class="timeframe-box">
-                <label><b>Withdrawal Phase</b></label>
+                <label><b>Withdrawals</b></label>
                 <div class="input-row">
                     <input type="number" class="adj-val" value="0" placeholder="Amount">
                     <div style="display:flex; gap:5px; align-items:center">
@@ -122,16 +126,16 @@ function addCard(type) {
         content += `
             <h3>Real Estate</h3>
             <div class="input-row">
-                <div><label>Name</label><input type="text" class="name" value="Home"></div>
-                <div><label>Price ($)</label><input type="number" class="p-val" value="400000"></div>
+                <div><label>Name</label><input type="text" class="name" value="Primary Home"></div>
+                <div><label>Purchase Price ($)</label><input type="number" class="p-val" value="400000"></div>
             </div>
             <div class="input-row">
                 <div><label>Down Payment (%)</label><input type="number" class="down" value="20"></div>
                 <div><label>Interest Rate (%)</label><input type="number" class="i-rate" value="6.5"></div>
             </div>
             <div class="input-row">
-                <div><label>Appr. (%)</label><input type="number" class="appr" value="4"></div>
-                <div><label>Tax/Fees (%)</label><input type="number" class="exp" value="1.5"></div>
+                <div><label>Appreciation (%)</label><input type="number" class="appr" value="4"></div>
+                <div><label>Tax/Exp (%)</label><input type="number" class="exp" value="1.5"></div>
             </div>
             <div class="timeframe-box">
                 <label><b>Rental Income</b></label>
@@ -172,51 +176,41 @@ function calcETF(card, totalYears, adj, start, end) {
     const cont = parseFloat(card.querySelector('.cont').value);
     const rate = parseFloat(card.querySelector('.rate').value) / 100;
     
-    // Year 0
     let data = [{ year: 0, total: initial, growth: 0, cashflow: -initial, roi: 0 }];
-    
     let bal = initial;
     for(let y=1; y<=totalYears; y++) {
         let startBal = bal;
         let yearlyCash = cont + ((y >= start && y <= end) ? adj : 0);
         let growth = (bal + yearlyCash) * rate;
         bal += yearlyCash + growth;
-        let roi = (growth) / (startBal || 1) * 100;
-        data.push({ year: y, total: bal, growth, cashflow: yearlyCash, roi });
+        data.push({ year: y, total: bal, growth, cashflow: yearlyCash, roi: (growth / (startBal || 1)) * 100 });
     }
     return data;
 }
 
 function calcRE(card, totalYears, adj, start, end) {
     let pValStart = parseFloat(card.querySelector('.p-val').value);
-    const downPercent = parseFloat(card.querySelector('.down').value) / 100;
-    const downAmt = pValStart * downPercent;
+    const downAmt = pValStart * (parseFloat(card.querySelector('.down').value) / 100);
     const iRate = parseFloat(card.querySelector('.i-rate').value) / 100 / 12;
     let loan = pValStart - downAmt;
     const mPay = loan * (iRate * Math.pow(1+iRate, 360)) / (Math.pow(1+iRate, 360) - 1);
     const expRate = parseFloat(card.querySelector('.exp').value) / 100;
     
-    // Year 0
-    let data = [{ year: 0, val: pValStart, equity: downAmt, loan: loan, cashflow: -downAmt, prin: 0, appr: 0, roi: 0 }];
-    
+    let data = [{ year: 0, val: pValStart, equity: downAmt, loan, cashflow: -downAmt, prin: 0, appr: 0, roi: 0 }];
     let pVal = pValStart;
     for(let y=1; y<=totalYears; y++) {
         let startEquity = pVal - loan;
         let yrAppr = pVal * (parseFloat(card.querySelector('.appr').value) / 100);
         pVal += yrAppr;
-        
         let yrPrin = 0;
         for(let m=0; m<12; m++) {
             let mInt = loan * iRate;
             let mPrin = Math.min(loan, mPay - mInt);
             loan -= mPrin; yrPrin += mPrin;
         }
-        
         let yearlyAdj = (y >= start && y <= end) ? adj : 0;
         let cashflow = yearlyAdj - (mPay * 12) - (pVal * expRate);
-        let roi = (yrAppr + yrPrin + cashflow) / (startEquity || downAmt) * 100;
-
-        data.push({ year: y, val: pVal, equity: pVal - loan, loan, cashflow, prin: yrPrin, appr: yrAppr, roi });
+        data.push({ year: y, val: pVal, equity: pVal - loan, loan, cashflow, prin: yrPrin, appr: yrAppr, roi: (yrAppr + yrPrin + cashflow) / (startEquity || downAmt) * 100 });
     }
     return data;
 }
@@ -231,24 +225,27 @@ function render(results, years) {
         h += `<tr><td>${i}</td>`;
         results.forEach(r => {
             const d = r.data[i];
-            const roiColor = d.roi >= 0 ? 'pos-bg' : 'neg-bg';
-            const valForNW = r.type === 'ETF' ? d.total : d.equity;
-            totalNW += valForNW;
-
+            totalNW += (r.type === 'ETF' ? d.total : d.equity);
             if(r.type === 'ETF') {
-                h += `<td><span class="amt">${fmt(d.total)}</span><span class="lbl">Portfolio</span>
-                          ${i > 0 ? `<span class="roi-badge ${roiColor}">${d.roi.toFixed(1)}% ROI</span>` : ''}</td>
-                      <td><span class="amt pos">${fmt(d.growth)}</span><span class="lbl">Year Gain</span>
-                          <span class="amt">${fmt(d.cashflow)}</span><span class="lbl">Net Cashflow</span></td>`;
+                h += `<td><span class="lbl">Portfolio Balance</span><span class="amt">${fmt(d.total)}</span>
+                          ${i>0 ? `<span class="roi-badge ${d.roi>=0?'pos-bg':'neg-bg'}">${d.roi.toFixed(1)}% ROI</span>` : ''}</td>
+                      <td><span class="lbl">Growth & Cash</span><span class="amt pos">${fmt(d.growth)}</span><span class="amt">${fmt(d.cashflow)}</span></td>`;
             } else {
-                h += `<td><span class="amt">${fmt(d.equity)}</span><span class="lbl">Equity</span>
-                          ${i > 0 ? `<span class="roi-badge ${roiColor}">${d.roi.toFixed(1)}% ROI</span>` : ''}</td>
-                      <td><span class="amt pos">${fmt(d.appr)}</span><span class="lbl">Appr.</span>
-                          <span class="amt pos">${fmt(d.prin)}</span><span class="lbl">Prin. Paid</span>
-                          <span class="amt ${d.cashflow>=0?'pos':'neg'}">${fmt(d.cashflow)}</span><span class="lbl">Cashflow</span></td>`;
+                h += `<td>
+                        <span class="lbl">Updated Home Value</span><span class="amt home-val-amt">${fmt(d.val)}</span>
+                        <span class="lbl">Your Equity</span><span class="amt equity-amt">${fmt(d.equity)}</span>
+                        ${i>0 ? `<span class="roi-badge ${d.roi>=0?'pos-bg':'neg-bg'}">${d.roi.toFixed(1)}% ROI</span>` : ''}
+                      </td>
+                      <td>
+                        <span class="lbl">Debt & Gains</span>
+                        <span class="amt loan-amt">${fmt(d.loan)} <small style="font-size:0.6rem; color:#94a3b8">LOAN</small></span>
+                        <span class="amt pos">${fmt(d.appr)} <small style="font-size:0.6rem; color:#94a3b8">APPR.</small></span>
+                        <span class="amt pos">${fmt(d.prin)} <small style="font-size:0.6rem; color:#94a3b8">PRIN.</small></span>
+                        <span class="amt ${d.cashflow>=0?'pos':'neg'}">${fmt(d.cashflow)} <small style="font-size:0.6rem; color:#94a3b8">CASH</small></span>
+                      </td>`;
             }
         });
-        h += `<td class="total-nw-col"><span class="amt nw-amt">${fmt(totalNW)}</span><span class="lbl">Combined Assets</span></td></tr>`;
+        h += `<td class="total-nw-col"><span class="amt nw-amt">${fmt(totalNW)}</span><span class="lbl">Net Wealth</span></td></tr>`;
     }
     document.getElementById('table-output').innerHTML = h + `</tbody></table>`;
 
@@ -259,24 +256,18 @@ function render(results, years) {
             labels: Array.from({length: years + 1}, (_, i) => i),
             datasets: [
                 ...results.map(r => ({
-                    label: r.name,
+                    label: r.name + ' (Net)',
                     data: r.data.map(d => r.type === 'ETF' ? d.total : d.equity),
                     borderColor: r.type === 'ETF' ? '#10b981' : '#f59e0b',
-                    borderDash: [5, 5],
-                    tension: 0.2
+                    borderDash: [5, 5], tension: 0.2
                 })),
                 {
                     label: 'TOTAL NET WORTH',
-                    data: Array.from({length: years + 1}, (_, i) => {
-                        return results.reduce((acc, r) => acc + (r.type === 'ETF' ? r.data[i].total : r.data[i].equity), 0);
-                    }),
-                    borderColor: '#6366f1',
-                    borderWidth: 4,
-                    tension: 0.2
+                    data: Array.from({length: years+1}, (_, i) => results.reduce((acc, r) => acc + (r.type === 'ETF' ? r.data[i].total : r.data[i].equity), 0)),
+                    borderColor: '#6366f1', borderWidth: 4, tension: 0.2
                 }
             ]
-        },
-        options: { plugins: { title: { display:true, text: 'Wealth Progression Strategy' } } }
+        }
     });
 }
 
