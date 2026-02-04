@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Theoretical Drawdown & Net Worth Simulator</title>
+    <title>LIRA & Net Worth Growth Simulator</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -17,7 +17,7 @@
         .etf-card { border-top-color: #10b981; }
         .re-card { border-top-color: #f59e0b; }
         
-        .remove-btn { position: absolute; top: 10px; right: 10px; background: #fee2e2; color: #ef4444; border: none; border-radius: 4px; cursor: pointer; padding: 2px 6px; font-size: 10px; font-weight: bold; }
+        .remove-btn { position: absolute; top: 10px; right: 10px; background: #fee2e2; color: #ef4444; border: none; border-radius: 4px; padding: 2px 6px; font-size: 10px; font-weight: bold; cursor: pointer; }
         .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px; }
         label { display: block; margin-bottom: 2px; font-size: 0.75rem; font-weight: 600; color: #64748b; }
         input { width: 100%; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.85rem; }
@@ -33,13 +33,14 @@
         th, td { padding: 10px; text-align: center; border: 1px solid #f1f5f9; font-size: 0.8rem; vertical-align: top;}
         th { background: #f8fafc; font-weight: 700; position: sticky; top: 0; z-index: 10; color: #475569; }
         
-        td:first-child, th:first-child { position: sticky; left: 0; z-index: 11; background: #f1f5f9; border-right: 2px solid #cbd5e1; width: 80px; font-weight: bold; }
-        .total-nw-col { background: #f5f3ff; border-left: 2px solid #6366f1 !important; font-weight: bold; width: 140px; }
+        td:first-child, th:first-child { position: sticky; left: 0; z-index: 11; background: #f1f5f9; border-right: 2px solid #cbd5e1; width: 85px; font-weight: bold; }
+        .total-nw-col { background: #f5f3ff; border-left: 2px solid #6366f1 !important; font-weight: bold; width: 150px; }
         
         .amt { display: block; font-weight: 700; font-size: 0.9rem; margin-bottom: 2px; }
         .lbl { display: block; font-size: 0.6rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px; }
         .draw-col { background: #f0fdf4; border-left: 1px dashed #10b981; }
         .draw-val { color: #059669; font-weight: 800; }
+        .locked { color: #94a3b8; font-style: italic; font-weight: 400; font-size: 0.75rem; }
         .pos { color: #10b981; } .neg { color: #ef4444; }
         .nw-amt { color: #4f46e5; font-size: 1rem; }
     </style>
@@ -48,24 +49,24 @@
 
 <div class="container">
     <div class="header">
-        <h1>Financial Strategy Simulator</h1>
-        <p>Calculating <i>theoretical</i> max withdrawals to Age 67 while principal remains invested.</p>
+        <h1>Comprehensive Wealth Growth Strategy</h1>
+        <p>Theoretical withdrawals for LIRA/Investments are restricted until Age 55.</p>
     </div>
 
     <div class="input-section">
         <div class="global-params">
-            <div><label>Current Age</label><input type="number" id="current-age" value="45" style="width:70px"></div>
-            <div><label>Target Age (for Withdrawal Calc)</label><input type="number" id="target-age" value="67" style="width:70px"></div>
+            <div><label>Current Age</label><input type="number" id="current-age" value="40" style="width:70px"></div>
+            <div><label>Retirement Age (Target 0)</label><input type="number" id="target-age" value="67" style="width:70px"></div>
         </div>
 
         <div id="investments-container" class="investments-grid">
             </div>
 
         <div class="controls">
-            <button class="btn btn-etf" onclick="addCard('ETF', 'LIRA')">+ Add LIRA</button>
-            <button class="btn btn-etf" onclick="addCard('ETF', 'Investment')">+ Add Investment</button>
+            <button class="btn btn-etf" onclick="addCard('ETF', 'LIRA Account')">+ Add LIRA</button>
+            <button class="btn btn-etf" onclick="addCard('ETF', 'Investment Acc')">+ Add Investment</button>
             <button class="btn btn-re" onclick="addCard('RE')">+ Add Property</button>
-            <button class="btn btn-calc" onclick="calculate()">Run Growth Simulation</button>
+            <button class="btn btn-calc" onclick="calculate()">Recalculate Wealth</button>
         </div>
     </div>
 
@@ -87,25 +88,25 @@ function addCard(type, name = "Account") {
         content += `<h3>${name}</h3>
             <div class="input-row">
                 <div><label>Name</label><input type="text" class="name" value="${name}"></div>
-                <div><label>Start Balance ($)</label><input type="number" class="init" value="200000"></div>
+                <div><label>Balance ($)</label><input type="number" class="init" value="150000"></div>
             </div>
             <div class="input-row">
-                <div><label>Annual Return (%)</label><input type="number" class="rate" value="7"></div>
-                <div><label>Monthly Contrib ($)</label><input type="number" class="cont" value="500"></div>
+                <div><label>Returns (%)</label><input type="number" class="rate" value="7"></div>
+                <div><label>Monthly Contrib ($)</label><input type="number" class="cont" value="1000"></div>
             </div>`;
     } else {
         content += `<h3>Property</h3>
             <div class="input-row">
-                <div><label>Name</label><input type="text" class="name" value="Home"></div>
-                <div><label>Price ($)</label><input type="number" class="p-val" value="500000"></div>
+                <div><label>Name</label><input type="text" class="name" value="Primary Home"></div>
+                <div><label>Price ($)</label><input type="number" class="p-val" value="550000"></div>
             </div>
             <div class="input-row">
                 <div><label>Down Pay (%)</label><input type="number" class="down" value="20"></div>
-                <div><label>Int. Rate (%)</label><input type="number" class="i-rate" value="5.5"></div>
+                <div><label>Int. Rate (%)</label><input type="number" class="i-rate" value="6"></div>
             </div>
             <div class="input-row">
                 <div><label>Appr (%)</label><input type="number" class="appr" value="4"></div>
-                <div><label>Tax/Exp (%)</label><input type="number" class="exp" value="1.5"></div>
+                <div><label>Expenses (%)</label><input type="number" class="exp" value="1.5"></div>
             </div>`;
     }
     div.innerHTML = content;
@@ -168,37 +169,42 @@ function calcRE(card, years) {
 function render(results, years, startAge, targetAge) {
     let h = `<table><thead><tr><th>Age (Year)</th>`;
     results.forEach(r => {
-        h += `<th colspan="${r.type === 'ETF' ? 3 : 3}" style="background:${r.type === 'ETF'?'#ecfdf5':'#fffbeb'}">${r.name}</th>`;
+        h += `<th colspan="3" style="background:${r.type === 'ETF' ? '#ecfdf5' : '#fffbeb'}">${r.name}</th>`;
     });
     h += `<th class="total-nw-col">TOTAL NET WORTH</th></tr></thead><tbody>`;
     
     for(let i=0; i<=years; i++) {
         let totalNW = 0;
-        let age = startAge + i;
-        let nRemaining = targetAge - age;
-        h += `<tr><td><b>Age ${age}</b><br><small>Year ${i}</small></td>`;
+        let currentAge = startAge + i;
+        h += `<tr><td><b>Age ${currentAge}</b><br><small>Yr ${i}</small></td>`;
         
         results.forEach(r => {
             const d = r.data[i];
             totalNW += (r.type === 'ETF' ? d.total : d.equity);
             
             if(r.type === 'ETF') {
-                const rate = parseFloat(document.querySelector(`[value="${r.name}"]`).closest('.card').querySelector('.rate').value) / 100;
-                let withdrawal = 0;
-                if (nRemaining > 0) {
-                    withdrawal = d.total * (rate * Math.pow(1+rate, nRemaining)) / (Math.pow(1+rate, nRemaining) - 1);
-                    if (rate === 0) withdrawal = d.total / nRemaining;
-                } else if (nRemaining === 0) {
-                    withdrawal = d.total;
+                const rateField = document.querySelector(`[value="${r.name}"]`).closest('.card').querySelector('.rate');
+                const rate = parseFloat(rateField.value) / 100;
+                let withdrawalStr = '<span class="locked">Locked <br>(Pre-55)</span>';
+                
+                if (currentAge >= 55) {
+                    let nRemaining = targetAge - currentAge;
+                    if (nRemaining > 0) {
+                        let w = d.total * (rate * Math.pow(1+rate, nRemaining)) / (Math.pow(1+rate, nRemaining) - 1);
+                        if (rate === 0) w = d.total / nRemaining;
+                        withdrawalStr = `<span class="amt draw-val">${fmt(w)}</span>`;
+                    } else {
+                        withdrawalStr = `<span class="amt draw-val">${fmt(d.total)}</span>`;
+                    }
                 }
 
-                h += `<td><span class="lbl">Balance</span><span class="amt">${fmt(d.total)}</span></td>
-                      <td><span class="lbl">Year Gain</span><span class="amt pos">${fmt(d.growth)}</span></td>
-                      <td class="draw-col"><span class="lbl">Max Withdrawal<br>To Age ${targetAge}</span><span class="amt draw-val">${fmt(withdrawal)}</span></td>`;
+                h += `<td><span class="lbl">Principal</span><span class="amt">${fmt(d.total)}</span></td>
+                      <td><span class="lbl">ROI Gain</span><span class="amt pos">${fmt(d.growth)}</span></td>
+                      <td class="draw-col"><span class="lbl">Max Withdrawal<br>To Age ${targetAge}</span>${withdrawalStr}</td>`;
             } else {
-                h += `<td><span class="lbl">Updated Value</span><span class="amt">${fmt(d.val)}</span></td>
+                h += `<td><span class="lbl">Home Value</span><span class="amt">${fmt(d.val)}</span><span class="lbl">Appreciation</span><span class="amt pos">${fmt(d.appr)}</span></td>
                       <td><span class="lbl">Equity</span><span class="amt pos">${fmt(d.equity)}</span></td>
-                      <td><span class="lbl">Remaining Debt</span><span class="amt neg">${fmt(d.loan)}</span><span class="lbl">Prin. Paid</span><span class="amt pos">${fmt(d.prin)}</span></td>`;
+                      <td><span class="lbl">Loan Balance</span><span class="amt neg">${fmt(d.loan)}</span><span class="lbl">Principal Paid</span><span class="amt pos">${fmt(d.prin)}</span></td>`;
             }
         });
         h += `<td class="total-nw-col"><span class="amt nw-amt">${fmt(totalNW)}</span></td></tr>`;
@@ -211,11 +217,12 @@ function render(results, years, startAge, targetAge) {
         data: {
             labels: Array.from({length: years + 1}, (_, i) => startAge + i),
             datasets: [{
-                label: 'Combined Net Worth',
+                label: 'Combined Total Net Worth',
                 data: Array.from({length: years+1}, (_, i) => results.reduce((acc, r) => acc + (r.type === 'ETF' ? r.data[i].total : r.data[i].equity), 0)),
                 borderColor: '#6366f1', borderWidth: 3, tension: 0.2, fill: true, backgroundColor: 'rgba(99, 102, 241, 0.05)'
             }]
-        }
+        },
+        options: { plugins: { title: { display: true, text: 'Long-Term Equity Accumulation' } } }
     });
 }
 
