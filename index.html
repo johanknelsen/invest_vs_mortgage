@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Financial Event Simulator</title>
+    <title>Ultimate Life & Equity Simulator</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -12,7 +12,7 @@
         .header { text-align: center; margin-bottom: 20px; }
         .input-section { background: #f8fafc; padding: 20px; border-radius: 10px; margin-bottom: 25px; border: 1px solid #e2e8f0; }
         .global-params { display: flex; gap: 30px; justify-content: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #cbd5e1; }
-        .investments-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 15px; }
+        .investments-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 15px; }
         
         .card { background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 15px; position: relative; border-top: 5px solid #94a3b8; }
         .lira-card { border-top-color: #ef4444; }
@@ -52,7 +52,8 @@
 
 <div class="container">
     <div class="header">
-        <h1>Life Event & Strategy Simulator</h1>
+        <h1>Life Path & Equity Simulator</h1>
+        <p>Dynamic contributions, real estate accelerators, and LIRA drawdown strategy.</p>
     </div>
 
     <div class="input-section">
@@ -65,7 +66,7 @@
             <button class="btn btn-lira" onclick="addCard('LIRA')">+ Add LIRA</button>
             <button class="btn btn-inv" onclick="addCard('INV')">+ Add Investment</button>
             <button class="btn btn-re" onclick="addCard('RE')">+ Add Property</button>
-            <button class="btn btn-calc" onclick="calculate()">Run Life Simulation</button>
+            <button class="btn btn-calc" onclick="calculate()">Run Path Analysis</button>
         </div>
     </div>
     <canvas id="mainChart" style="max-height: 350px; margin-bottom: 20px;"></canvas>
@@ -112,13 +113,17 @@ function addCard(type) {
             </div>
             <div class="input-row">
                 <div><label>Down Pay (%)</label><input type="number" class="down" value="20"></div>
+                <div><label>Int. Rate (%)</label><input type="number" class="i-rate" value="5"></div>
+            </div>
+            <div class="input-row">
                 <div><label>Appr (%)</label><input type="number" class="appr" value="4"></div>
+                <div><label>Annual Extra Pay ($)</label><input type="number" class="re-extra" value="0"></div>
             </div>
             <div class="full-row">
-                <label><b>Manual Reassessment</b> (Overrides standard appreciation for that year)</label>
+                <label><b>Manual Reassessment</b> (Year / New Value)</label>
                 <div style="display:flex; gap:10px">
-                    <div style="flex:1"><label>Year</label><input type="number" class="re-yr" value="10"></div>
-                    <div style="flex:2"><label>New Market Value ($)</label><input type="number" class="re-val" value="0"></div>
+                    <div style="flex:1"><input type="number" class="re-yr" value="10"></div>
+                    <div style="flex:2"><input type="number" class="re-val" value="0"></div>
                 </div>
             </div>`;
     }
@@ -169,11 +174,12 @@ function calcRE(card, years) {
     let pVal = parseFloat(card.querySelector('.p-val').value);
     const down = pVal * (parseFloat(card.querySelector('.down').value) / 100);
     const appr = parseFloat(card.querySelector('.appr').value) / 100;
+    const extraPay = parseFloat(card.querySelector('.re-extra').value) || 0;
     const reYr = parseInt(card.querySelector('.re-yr').value);
     const reVal = parseFloat(card.querySelector('.re-val').value) || 0;
     
     let loan = pVal - down;
-    const iRate = 0.05 / 12; // Hardcoded baseline for debt logic
+    const iRate = (parseFloat(card.querySelector('.i-rate').value) / 100) / 12;
     const mPay = loan * (iRate * Math.pow(1+iRate, 360)) / (Math.pow(1+iRate, 360) - 1);
     
     let data = [{ year: 0, val: pVal, equity: down, loan, event: "" }];
@@ -185,10 +191,20 @@ function calcRE(card, years) {
         } else {
             pVal *= (1 + appr);
         }
+        
+        // Regular Amortization
         for(let m=0; m<12; m++) {
-            let mInt = loan * iRate;
-            loan = Math.max(0, loan - (mPay - mInt));
+            if (loan > 0) {
+                let mInt = loan * iRate;
+                loan = Math.max(0, loan - (mPay - mInt));
+            }
         }
+        // Annual Extra Principal Payment
+        if (loan > 0 && extraPay > 0) {
+            loan = Math.max(0, loan - extraPay);
+            yrEvent += (yrEvent ? " + " : "") + "EXTRA PAY";
+        }
+
         data.push({ year: y, val: pVal, equity: pVal - loan, loan, event: yrEvent });
     }
     return data;
@@ -207,7 +223,8 @@ function render(results, years, startAge, targetAge) {
             const d = r.data[i];
             totalNW += (r.type === 'RE' ? d.equity : d.total);
             if(r.type === 'LIRA' || r.type === 'INV') {
-                const rate = parseFloat(document.querySelector(`[value="${r.name}"]`).closest('.card').querySelector('.rate').value) / 100;
+                const rateInput = document.querySelector(`[value="${r.name}"]`).closest('.card').querySelector('.rate');
+                const rate = parseFloat(rateInput.value) / 100;
                 let withdrawalStr = '<span class="locked">—</span>';
                 if (!(r.type === 'LIRA' && age < 55)) {
                     let nRem = targetAge - age;
@@ -217,12 +234,12 @@ function render(results, years, startAge, targetAge) {
                     } else withdrawalStr = `<span class="amt draw-val">${fmt(d.total)}</span>`;
                 }
                 h += `<td><span class="lbl">Principal</span><span class="amt">${fmt(d.total)}</span>${d.event?`<span class="event-marker">${d.event}</span>`:''}</td>
-                      <td><span class="lbl">Growth</span><span class="amt pos">${fmt(d.growth || 0)}</span></td>
+                      <td><span class="lbl">ROI Gain</span><span class="amt pos">${fmt(d.growth || 0)}</span></td>
                       <td class="draw-col"><span class="lbl">Max Withdrawal</span>${withdrawalStr}</td>`;
             } else {
-                h += `<td><span class="lbl">Mkt Value</span><span class="amt">${fmt(d.val)}</span>${d.event?`<span class="event-marker">${d.event}</span>`:''}</td>
+                h += `<td><span class="lbl">Market Value</span><span class="amt">${fmt(d.val)}</span>${d.event?`<span class="event-marker">${d.event}</span>`:''}</td>
                       <td><span class="lbl">Equity</span><span class="amt pos">${fmt(d.equity)}</span></td>
-                      <td><span class="lbl">Debt</span><span class="amt neg">${fmt(d.loan)}</span></td>`;
+                      <td><span class="lbl">Debt Balance</span><span class="amt neg">${fmt(d.loan)}</span></td>`;
             }
         });
         h += `<td class="total-nw-col"><span class="amt nw-amt">${fmt(totalNW)}</span></td></tr>`;
@@ -233,7 +250,7 @@ function render(results, years, startAge, targetAge) {
         type: 'line',
         data: {
             labels: Array.from({length: years+1}, (_, i) => startAge + i),
-            datasets: [{ label: 'Total Net Worth', data: Array.from({length: years+1}, (_, i) => results.reduce((acc, r) => acc + (r.type === 'RE' ? r.data[i].equity : r.data[i].total), 0)), borderColor: '#6366f1', borderWidth: 3, tension: 0.2, fill: true, backgroundColor: 'rgba(99, 102, 241, 0.05)' }]
+            datasets: [{ label: 'Net Worth', data: Array.from({length: years+1}, (_, i) => results.reduce((acc, r) => acc + (r.type === 'RE' ? r.data[i].equity : r.data[i].total), 0)), borderColor: '#6366f1', borderWidth: 3, tension: 0.2, fill: true, backgroundColor: 'rgba(99, 102, 241, 0.05)' }]
         }
     });
 }
