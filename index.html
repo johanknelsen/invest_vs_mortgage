@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Wealth & Offset Simulator</title>
+    <title>Advanced Financial Event Simulator</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f8fafc; padding: 20px; color: #1e293b; }
-        .container { max-width: 1900px; margin: 0 auto; background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f1f5f9; padding: 20px; color: #1e293b; }
+        .container { max-width: 1950px; margin: 0 auto; background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
         .header { text-align: center; margin-bottom: 20px; }
-        .input-section { background: #f1f5f9; padding: 20px; border-radius: 10px; margin-bottom: 25px; border: 1px solid #e2e8f0; }
+        .input-section { background: #f8fafc; padding: 20px; border-radius: 10px; margin-bottom: 25px; border: 1px solid #e2e8f0; }
         .global-params { display: flex; gap: 30px; justify-content: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #cbd5e1; }
-        .investments-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 15px; }
+        .investments-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 15px; }
         
         .card { background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 15px; position: relative; border-top: 5px solid #94a3b8; }
         .lira-card { border-top-color: #ef4444; }
@@ -21,10 +21,10 @@
         
         .remove-btn { position: absolute; top: 10px; right: 10px; background: #fee2e2; color: #ef4444; border: none; border-radius: 4px; padding: 2px 6px; font-size: 10px; font-weight: bold; cursor: pointer; }
         .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px; }
+        .full-row { grid-column: span 2; background: #f1f5f9; padding: 8px; border-radius: 6px; margin-top: 5px; border: 1px dashed #cbd5e1; }
         label { display: block; margin-bottom: 2px; font-size: 0.75rem; font-weight: 600; color: #64748b; }
         input { width: 100%; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.85rem; }
         
-        .offset-row { background: #f8fafc; padding: 6px; border-radius: 4px; border: 1px dashed #cbd5e1; margin-top: 5px; }
         .controls { display: flex; gap: 10px; margin-top: 20px; justify-content: center; }
         .btn { padding: 10px 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem; }
         .btn-lira { background: #ef4444; color: white; }
@@ -34,26 +34,25 @@
 
         .table-scroll { overflow-x: auto; margin-top: 30px; border-radius: 8px; border: 1px solid #e2e8f0; }
         table { border-collapse: collapse; width: 100%; background: white; min-width: 1800px; }
-        th, td { padding: 10px; text-align: center; border: 1px solid #f1f5f9; font-size: 0.8rem; vertical-align: top;}
-        th { background: #f8fafc; font-weight: 700; position: sticky; top: 0; z-index: 10; color: #475569; }
+        th, td { padding: 8px; text-align: center; border: 1px solid #f1f5f9; font-size: 0.78rem; vertical-align: top;}
+        th { background: #f8fafc; font-weight: 700; position: sticky; top: 0; z-index: 10; }
         
         td:first-child, th:first-child { position: sticky; left: 0; z-index: 11; background: #f1f5f9; border-right: 2px solid #cbd5e1; width: 85px; font-weight: bold; }
-        .total-nw-col { background: #f5f3ff; border-left: 2px solid #6366f1 !important; font-weight: bold; width: 150px; }
+        .total-nw-col { background: #f5f3ff; border-left: 2px solid #6366f1 !important; font-weight: bold; width: 140px; }
         
         .amt { display: block; font-weight: 700; font-size: 0.85rem; margin-bottom: 2px; }
         .lbl { display: block; font-size: 0.6rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px; }
         .draw-col { background: #f0fdf4; border-left: 1px dashed #10b981; }
         .draw-val { color: #059669; font-weight: 800; }
-        .locked { color: #94a3b8; font-style: italic; font-size: 0.7rem; }
+        .event-marker { font-size: 0.65rem; color: #6366f1; font-weight: bold; background: #eef2ff; border-radius: 3px; padding: 1px 3px; display: inline-block; margin-top: 4px;}
         .pos { color: #10b981; } .neg { color: #ef4444; }
-        .nw-amt { color: #4f46e5; font-size: 1rem; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <h1>Strategy & Offset Wealth Simulator</h1>
+        <h1>Life Event & Strategy Simulator</h1>
     </div>
 
     <div class="input-section">
@@ -61,17 +60,14 @@
             <div><label>Current Age</label><input type="number" id="current-age" value="40" style="width:70px"></div>
             <div><label>Target Age (Zero Point)</label><input type="number" id="target-age" value="67" style="width:70px"></div>
         </div>
-
         <div id="investments-container" class="investments-grid"></div>
-
         <div class="controls">
             <button class="btn btn-lira" onclick="addCard('LIRA')">+ Add LIRA</button>
             <button class="btn btn-inv" onclick="addCard('INV')">+ Add Investment</button>
             <button class="btn btn-re" onclick="addCard('RE')">+ Add Property</button>
-            <button class="btn btn-calc" onclick="calculate()">Generate Projection</button>
+            <button class="btn btn-calc" onclick="calculate()">Run Life Simulation</button>
         </div>
     </div>
-
     <canvas id="mainChart" style="max-height: 350px; margin-bottom: 20px;"></canvas>
     <div id="table-output" class="table-scroll"></div>
 </div>
@@ -82,38 +78,48 @@ let chart = null;
 function addCard(type) {
     const container = document.getElementById('investments-container');
     const div = document.createElement('div');
-    div.className = `card ${type === 'LIRA' ? 'lira-card' : type === 'INV' ? 'inv-card' : 're-card'}`;
+    div.className = `card ${type==='LIRA'?'lira-card':type==='INV'?'inv-card':'re-card'}`;
     div.dataset.type = type;
     let content = `<button class="remove-btn" onclick="this.parentElement.remove()">Remove</button>`;
     
     if (type === 'LIRA' || type === 'INV') {
-        const isLira = type === 'LIRA';
-        content += `<h3>${isLira ? 'LIRA Account' : 'Investment Acc'}</h3>
+        const name = type === 'LIRA' ? 'LIRA' : 'Investment';
+        content += `<h3>${name}</h3>
             <div class="input-row">
-                <div><label>Name</label><input type="text" class="name" value="${isLira ? 'LIRA' : 'TFSA/RRSP'}"></div>
+                <div><label>Name</label><input type="text" class="name" value="${name}"></div>
                 <div><label>Start Balance ($)</label><input type="number" class="init" value="100000"></div>
             </div>
             <div class="input-row">
-                <div><label>Returns (%)</label><input type="number" class="rate" value="7"></div>
-                <div><label>Monthly Contrib ($)</label><input type="number" class="cont" value="500"></div>
+                <div><label>Contrib Start (Year)</label><input type="number" class="c-start" value="0"></div>
+                <div><label>Contrib End (Year)</label><input type="number" class="c-end" value="20"></div>
             </div>
-            <div class="offset-row">
-                <label>Start Offset (Years from now)</label>
-                <input type="number" class="offset" value="0">
+            <div class="input-row">
+                <div><label>Monthly Contrib ($)</label><input type="number" class="cont" value="1000"></div>
+                <div><label>Returns (%)</label><input type="number" class="rate" value="7"></div>
+            </div>
+            <div class="full-row">
+                <label><b>One-Time Events</b></label>
+                <div class="input-row" style="margin-bottom:0">
+                    <div><label>Extra Inv (Year / $)</label><div style="display:flex;gap:2px"><input type="number" class="ot-i-yr" value="5" style="width:40px"><input type="number" class="ot-i-amt" value="0"></div></div>
+                    <div><label>Extra WD (Year / $)</label><div style="display:flex;gap:2px"><input type="number" class="ot-w-yr" value="10" style="width:40px"><input type="number" class="ot-w-amt" value="0"></div></div>
+                </div>
             </div>`;
     } else {
         content += `<h3>Property</h3>
             <div class="input-row">
                 <div><label>Name</label><input type="text" class="name" value="Home"></div>
-                <div><label>Price ($)</label><input type="number" class="p-val" value="500000"></div>
+                <div><label>Purchase Price ($)</label><input type="number" class="p-val" value="500000"></div>
             </div>
             <div class="input-row">
                 <div><label>Down Pay (%)</label><input type="number" class="down" value="20"></div>
-                <div><label>Int. Rate (%)</label><input type="number" class="i-rate" value="5"></div>
-            </div>
-            <div class="input-row">
                 <div><label>Appr (%)</label><input type="number" class="appr" value="4"></div>
-                <div class="offset-row" style="margin-top:0"><label>Start Offset (Yrs)</label><input type="number" class="offset" value="0"></div>
+            </div>
+            <div class="full-row">
+                <label><b>Manual Reassessment</b> (Overrides standard appreciation for that year)</label>
+                <div style="display:flex; gap:10px">
+                    <div style="flex:1"><label>Year</label><input type="number" class="re-yr" value="10"></div>
+                    <div style="flex:2"><label>New Market Value ($)</label><input type="number" class="re-val" value="0"></div>
+                </div>
             </div>`;
     }
     div.innerHTML = content;
@@ -128,65 +134,62 @@ function calculate() {
     
     document.querySelectorAll('.card').forEach(card => {
         const type = card.dataset.type;
-        const offset = parseInt(card.querySelector('.offset').value) || 0;
-        if (type === 'LIRA' || type === 'INV') {
-            results.push({ name: card.querySelector('.name').value, type, offset, data: calcLiquid(card, years, offset) });
-        } else {
-            results.push({ name: card.querySelector('.name').value, type, offset, data: calcRE(card, years, offset) });
-        }
+        if (type === 'LIRA' || type === 'INV') results.push({ name: card.querySelector('.name').value, type, data: calcLiquid(card, years) });
+        else results.push({ name: card.querySelector('.name').value, type, data: calcRE(card, years) });
     });
     render(results, years, startAge, targetAge);
 }
 
-function calcLiquid(card, years, offset) {
-    let bal = 0;
-    const initial = parseFloat(card.querySelector('.init').value);
-    const rate = parseFloat(card.querySelector('.rate').value) / 100;
+function calcLiquid(card, years) {
+    let bal = parseFloat(card.querySelector('.init').value);
+    const cStart = parseInt(card.querySelector('.c-start').value);
+    const cEnd = parseInt(card.querySelector('.c-end').value);
     const cont = parseFloat(card.querySelector('.cont').value) * 12;
+    const rate = parseFloat(card.querySelector('.rate').value) / 100;
+    const otIYr = parseInt(card.querySelector('.ot-i-yr').value);
+    const otIAmt = parseFloat(card.querySelector('.ot-i-amt').value) || 0;
+    const otWYr = parseInt(card.querySelector('.ot-w-yr').value);
+    const otWAmt = parseFloat(card.querySelector('.ot-w-amt').value) || 0;
     
-    let data = [];
-    for(let y=0; y<=years; y++) {
-        let growth = 0;
-        if (y === offset) {
-            bal = initial;
-        } else if (y > offset) {
-            growth = (bal + (cont/2)) * rate; 
-            bal += cont + growth;
-        }
-        data.push({ year: y, total: bal, growth: growth });
+    let data = [{ year: 0, total: bal, growth: 0, event: "" }];
+    for(let y=1; y<=years; y++) {
+        let yrEvent = "";
+        let yrCont = (y >= cStart && y <= cEnd) ? cont : 0;
+        if (y === otIYr && otIAmt > 0) { bal += otIAmt; yrEvent += "INJECTION"; }
+        if (y === otWYr && otWAmt > 0) { bal -= otWAmt; yrEvent += " WITHDRAWAL"; }
+        
+        let growth = (bal + (yrCont/2)) * rate; 
+        bal += yrCont + growth;
+        data.push({ year: y, total: Math.max(0, bal), growth, event: yrEvent.trim() });
     }
     return data;
 }
 
-function calcRE(card, years, offset) {
-    const pValInit = parseFloat(card.querySelector('.p-val').value);
-    const down = pValInit * (parseFloat(card.querySelector('.down').value) / 100);
-    const iRate = parseFloat(card.querySelector('.i-rate').value) / 100 / 12;
-    const apprRate = parseFloat(card.querySelector('.appr').value) / 100;
+function calcRE(card, years) {
+    let pVal = parseFloat(card.querySelector('.p-val').value);
+    const down = pVal * (parseFloat(card.querySelector('.down').value) / 100);
+    const appr = parseFloat(card.querySelector('.appr').value) / 100;
+    const reYr = parseInt(card.querySelector('.re-yr').value);
+    const reVal = parseFloat(card.querySelector('.re-val').value) || 0;
     
-    let loan = pValInit - down;
+    let loan = pVal - down;
+    const iRate = 0.05 / 12; // Hardcoded baseline for debt logic
     const mPay = loan * (iRate * Math.pow(1+iRate, 360)) / (Math.pow(1+iRate, 360) - 1);
     
-    let data = [];
-    let currentPVal = 0;
-    let currentLoan = 0;
-
-    for(let y=0; y<=years; y++) {
-        let yrAppr = 0;
-        let yrPrin = 0;
-        if (y === offset) {
-            currentPVal = pValInit;
-            currentLoan = pValInit - down;
-        } else if (y > offset) {
-            yrAppr = currentPVal * apprRate;
-            currentPVal += yrAppr;
-            for(let m=0; m<12; m++) {
-                let mInt = currentLoan * iRate;
-                let mP = Math.min(currentLoan, mPay - mInt);
-                currentLoan -= mP; yrPrin += mP;
-            }
+    let data = [{ year: 0, val: pVal, equity: down, loan, event: "" }];
+    for(let y=1; y<=years; y++) {
+        let yrEvent = "";
+        if (y === reYr && reVal > 0) {
+            pVal = reVal;
+            yrEvent = "REASSESSED";
+        } else {
+            pVal *= (1 + appr);
         }
-        data.push({ year: y, val: currentPVal, equity: currentPVal - currentLoan, loan: currentLoan, appr: yrAppr, prin: yrPrin });
+        for(let m=0; m<12; m++) {
+            let mInt = loan * iRate;
+            loan = Math.max(0, loan - (mPay - mInt));
+        }
+        data.push({ year: y, val: pVal, equity: pVal - loan, loan, event: yrEvent });
     }
     return data;
 }
@@ -200,34 +203,24 @@ function render(results, years, startAge, targetAge) {
         let totalNW = 0;
         let age = startAge + i;
         h += `<tr><td><b>Age ${age}</b><br><small>Yr ${i}</small></td>`;
-        
         results.forEach(r => {
             const d = r.data[i];
             totalNW += (r.type === 'RE' ? d.equity : d.total);
-            
             if(r.type === 'LIRA' || r.type === 'INV') {
                 const rate = parseFloat(document.querySelector(`[value="${r.name}"]`).closest('.card').querySelector('.rate').value) / 100;
                 let withdrawalStr = '<span class="locked">—</span>';
-                
-                if (i >= r.offset) {
-                    if (r.type === 'LIRA' && age < 55) {
-                        withdrawalStr = '<span class="locked">Locked <br>(Pre-55)</span>';
-                    } else {
-                        let nRem = targetAge - age;
-                        if (nRem > 0) {
-                            let w = d.total * (rate * Math.pow(1+rate, nRem)) / (Math.pow(1+rate, nRem) - 1);
-                            withdrawalStr = `<span class="amt draw-val">${fmt(w)}</span>`;
-                        } else {
-                            withdrawalStr = `<span class="amt draw-val">${fmt(d.total)}</span>`;
-                        }
-                    }
+                if (!(r.type === 'LIRA' && age < 55)) {
+                    let nRem = targetAge - age;
+                    if (nRem > 0) {
+                        let w = d.total * (rate * Math.pow(1+rate, nRem)) / (Math.pow(1+rate, nRem) - 1);
+                        withdrawalStr = `<span class="amt draw-val">${fmt(w)}</span>`;
+                    } else withdrawalStr = `<span class="amt draw-val">${fmt(d.total)}</span>`;
                 }
-
-                h += `<td><span class="lbl">Principal</span><span class="amt">${fmt(d.total)}</span></td>
-                      <td><span class="lbl">ROI Gain</span><span class="amt pos">${fmt(d.growth)}</span></td>
+                h += `<td><span class="lbl">Principal</span><span class="amt">${fmt(d.total)}</span>${d.event?`<span class="event-marker">${d.event}</span>`:''}</td>
+                      <td><span class="lbl">Growth</span><span class="amt pos">${fmt(d.growth || 0)}</span></td>
                       <td class="draw-col"><span class="lbl">Max Withdrawal</span>${withdrawalStr}</td>`;
             } else {
-                h += `<td><span class="lbl">Market Value</span><span class="amt">${fmt(d.val)}</span></td>
+                h += `<td><span class="lbl">Mkt Value</span><span class="amt">${fmt(d.val)}</span>${d.event?`<span class="event-marker">${d.event}</span>`:''}</td>
                       <td><span class="lbl">Equity</span><span class="amt pos">${fmt(d.equity)}</span></td>
                       <td><span class="lbl">Debt</span><span class="amt neg">${fmt(d.loan)}</span></td>`;
             }
@@ -235,21 +228,15 @@ function render(results, years, startAge, targetAge) {
         h += `<td class="total-nw-col"><span class="amt nw-amt">${fmt(totalNW)}</span></td></tr>`;
     }
     document.getElementById('table-output').innerHTML = h + `</tbody></table>`;
-
     if(chart) chart.destroy();
     chart = new Chart(document.getElementById('mainChart'), {
         type: 'line',
         data: {
-            labels: Array.from({length: years + 1}, (_, i) => startAge + i),
-            datasets: [{
-                label: 'Combined Total Net Worth',
-                data: Array.from({length: years+1}, (_, i) => results.reduce((acc, r) => acc + (r.type === 'RE' ? r.data[i].equity : r.data[i].total), 0)),
-                borderColor: '#6366f1', borderWidth: 3, tension: 0.2, fill: true, backgroundColor: 'rgba(99, 102, 241, 0.05)'
-            }]
+            labels: Array.from({length: years+1}, (_, i) => startAge + i),
+            datasets: [{ label: 'Total Net Worth', data: Array.from({length: years+1}, (_, i) => results.reduce((acc, r) => acc + (r.type === 'RE' ? r.data[i].equity : r.data[i].total), 0)), borderColor: '#6366f1', borderWidth: 3, tension: 0.2, fill: true, backgroundColor: 'rgba(99, 102, 241, 0.05)' }]
         }
     });
 }
-
 function fmt(n) { return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n); }
 window.onload = () => { addCard('LIRA'); addCard('INV'); addCard('RE'); };
 </script>
