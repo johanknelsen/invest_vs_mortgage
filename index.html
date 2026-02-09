@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ultimate Life & Equity Simulator</title>
+    <title>Smith Maneuver & Wealth Simulator</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -18,13 +18,15 @@
         .lira-card { border-top-color: #ef4444; }
         .inv-card { border-top-color: #10b981; }
         .re-card { border-top-color: #f59e0b; }
+        .smith-card { border-top-color: #6366f1; background: #f5f3ff; }
         
         .remove-btn { position: absolute; top: 10px; right: 10px; background: #fee2e2; color: #ef4444; border: none; border-radius: 4px; padding: 2px 6px; font-size: 10px; font-weight: bold; cursor: pointer; }
         .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px; }
         .full-row { grid-column: span 2; background: #f1f5f9; padding: 8px; border-radius: 6px; margin-top: 5px; border: 1px dashed #cbd5e1; }
         label { display: block; margin-bottom: 2px; font-size: 0.75rem; font-weight: 600; color: #64748b; }
-        input { width: 100%; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.85rem; }
+        input, select { width: 100%; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.85rem; }
         
+        .smith-toggle { display: flex; align-items: center; gap: 8px; margin-top: 10px; padding: 8px; background: #e0e7ff; border-radius: 6px; font-weight: bold; color: #4338ca; }
         .controls { display: flex; gap: 10px; margin-top: 20px; justify-content: center; }
         .btn { padding: 10px 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem; }
         .btn-lira { background: #ef4444; color: white; }
@@ -34,26 +36,24 @@
 
         .table-scroll { overflow-x: auto; margin-top: 30px; border-radius: 8px; border: 1px solid #e2e8f0; }
         table { border-collapse: collapse; width: 100%; background: white; min-width: 1800px; }
-        th, td { padding: 8px; text-align: center; border: 1px solid #f1f5f9; font-size: 0.78rem; vertical-align: top;}
+        th, td { padding: 8px; text-align: center; border: 1px solid #f1f5f9; font-size: 0.75rem; vertical-align: top;}
         th { background: #f8fafc; font-weight: 700; position: sticky; top: 0; z-index: 10; }
         
         td:first-child, th:first-child { position: sticky; left: 0; z-index: 11; background: #f1f5f9; border-right: 2px solid #cbd5e1; width: 85px; font-weight: bold; }
         .total-nw-col { background: #f5f3ff; border-left: 2px solid #6366f1 !important; font-weight: bold; width: 140px; }
+        .smith-col { background: #f5f3ff; border-left: 1px solid #c7d2fe; }
         
-        .amt { display: block; font-weight: 700; font-size: 0.85rem; margin-bottom: 2px; }
-        .lbl { display: block; font-size: 0.6rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px; }
-        .draw-col { background: #f0fdf4; border-left: 1px dashed #10b981; }
-        .draw-val { color: #059669; font-weight: 800; }
-        .event-marker { font-size: 0.65rem; color: #6366f1; font-weight: bold; background: #eef2ff; border-radius: 3px; padding: 1px 3px; display: inline-block; margin-top: 4px;}
+        .amt { display: block; font-weight: 700; font-size: 0.82rem; margin-bottom: 2px; }
+        .lbl { display: block; font-size: 0.55rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px; }
         .pos { color: #10b981; } .neg { color: #ef4444; }
+        .draw-val { color: #059669; font-weight: 800; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <h1>Life Path & Equity Simulator</h1>
-        <p>Dynamic contributions, real estate accelerators, and LIRA drawdown strategy.</p>
+        <h1>Smith Maneuver & Wealth Growth Engine</h1>
     </div>
 
     <div class="input-section">
@@ -65,8 +65,8 @@
         <div class="controls">
             <button class="btn btn-lira" onclick="addCard('LIRA')">+ Add LIRA</button>
             <button class="btn btn-inv" onclick="addCard('INV')">+ Add Investment</button>
-            <button class="btn btn-re" onclick="addCard('RE')">+ Add Property</button>
-            <button class="btn btn-calc" onclick="calculate()">Run Path Analysis</button>
+            <button class="btn btn-re" onclick="addCard('RE')">+ Add Property (Smith Opt)</button>
+            <button class="btn btn-calc" onclick="calculate()">Run Strategy Simulation</button>
         </div>
     </div>
     <canvas id="mainChart" style="max-height: 350px; margin-bottom: 20px;"></canvas>
@@ -88,7 +88,7 @@ function addCard(type) {
         content += `<h3>${name}</h3>
             <div class="input-row">
                 <div><label>Name</label><input type="text" class="name" value="${name}"></div>
-                <div><label>Start Balance ($)</label><input type="number" class="init" value="100000"></div>
+                <div><label>Initial Balance ($)</label><input type="number" class="init" value="100000"></div>
             </div>
             <div class="input-row">
                 <div><label>Contrib Start (Year)</label><input type="number" class="c-start" value="0"></div>
@@ -97,19 +97,12 @@ function addCard(type) {
             <div class="input-row">
                 <div><label>Monthly Contrib ($)</label><input type="number" class="cont" value="1000"></div>
                 <div><label>Returns (%)</label><input type="number" class="rate" value="7"></div>
-            </div>
-            <div class="full-row">
-                <label><b>One-Time Events</b></label>
-                <div class="input-row" style="margin-bottom:0">
-                    <div><label>Extra Inv (Year / $)</label><div style="display:flex;gap:2px"><input type="number" class="ot-i-yr" value="5" style="width:40px"><input type="number" class="ot-i-amt" value="0"></div></div>
-                    <div><label>Extra WD (Year / $)</label><div style="display:flex;gap:2px"><input type="number" class="ot-w-yr" value="10" style="width:40px"><input type="number" class="ot-w-amt" value="0"></div></div>
-                </div>
             </div>`;
     } else {
         content += `<h3>Property</h3>
             <div class="input-row">
-                <div><label>Name</label><input type="text" class="name" value="Home"></div>
-                <div><label>Purchase Price ($)</label><input type="number" class="p-val" value="500000"></div>
+                <div><label>Name</label><input type="text" class="name" value="Primary Home"></div>
+                <div><label>Purchase Price ($)</label><input type="number" class="p-val" value="600000"></div>
             </div>
             <div class="input-row">
                 <div><label>Down Pay (%)</label><input type="number" class="down" value="20"></div>
@@ -117,14 +110,14 @@ function addCard(type) {
             </div>
             <div class="input-row">
                 <div><label>Appr (%)</label><input type="number" class="appr" value="4"></div>
-                <div><label>Annual Extra Pay ($)</label><input type="number" class="re-extra" value="0"></div>
+                <div><label>Extra Principal/Yr ($)</label><input type="number" class="re-extra" value="0"></div>
             </div>
-            <div class="full-row">
-                <label><b>Manual Reassessment</b> (Year / New Value)</label>
-                <div style="display:flex; gap:10px">
-                    <div style="flex:1"><input type="number" class="re-yr" value="10"></div>
-                    <div style="flex:2"><input type="number" class="re-val" value="0"></div>
-                </div>
+            <div class="smith-toggle">
+                <input type="checkbox" class="smith-on" style="width:20px"> Enable Smith Maneuver
+            </div>
+            <div class="input-row" style="margin-top:10px">
+                <div><label>Smith Inv Return (%)</label><input type="number" class="smith-rate" value="8"></div>
+                <div><label>HELOC Interest (%)</label><input type="number" class="heloc-rate" value="7"></div>
             </div>`;
     }
     div.innerHTML = content;
@@ -139,8 +132,15 @@ function calculate() {
     
     document.querySelectorAll('.card').forEach(card => {
         const type = card.dataset.type;
-        if (type === 'LIRA' || type === 'INV') results.push({ name: card.querySelector('.name').value, type, data: calcLiquid(card, years) });
-        else results.push({ name: card.querySelector('.name').value, type, data: calcRE(card, years) });
+        if (type === 'LIRA' || type === 'INV') {
+            results.push({ name: card.querySelector('.name').value, type, data: calcLiquid(card, years) });
+        } else {
+            const reData = calcRE(card, years);
+            results.push({ name: card.querySelector('.name').value, type, data: reData });
+            if (card.querySelector('.smith-on').checked) {
+                results.push({ name: "Smith Portfolio", type: 'SMITH', data: calcSmith(card, years, reData) });
+            }
+        }
     });
     render(results, years, startAge, targetAge);
 }
@@ -151,21 +151,13 @@ function calcLiquid(card, years) {
     const cEnd = parseInt(card.querySelector('.c-end').value);
     const cont = parseFloat(card.querySelector('.cont').value) * 12;
     const rate = parseFloat(card.querySelector('.rate').value) / 100;
-    const otIYr = parseInt(card.querySelector('.ot-i-yr').value);
-    const otIAmt = parseFloat(card.querySelector('.ot-i-amt').value) || 0;
-    const otWYr = parseInt(card.querySelector('.ot-w-yr').value);
-    const otWAmt = parseFloat(card.querySelector('.ot-w-amt').value) || 0;
     
-    let data = [{ year: 0, total: bal, growth: 0, event: "" }];
+    let data = [{ year: 0, total: bal, growth: 0 }];
     for(let y=1; y<=years; y++) {
-        let yrEvent = "";
         let yrCont = (y >= cStart && y <= cEnd) ? cont : 0;
-        if (y === otIYr && otIAmt > 0) { bal += otIAmt; yrEvent += "INJECTION"; }
-        if (y === otWYr && otWAmt > 0) { bal -= otWAmt; yrEvent += " WITHDRAWAL"; }
-        
         let growth = (bal + (yrCont/2)) * rate; 
         bal += yrCont + growth;
-        data.push({ year: y, total: Math.max(0, bal), growth, event: yrEvent.trim() });
+        data.push({ year: y, total: Math.max(0, bal), growth });
     }
     return data;
 }
@@ -175,44 +167,45 @@ function calcRE(card, years) {
     const down = pVal * (parseFloat(card.querySelector('.down').value) / 100);
     const appr = parseFloat(card.querySelector('.appr').value) / 100;
     const extraPay = parseFloat(card.querySelector('.re-extra').value) || 0;
-    const reYr = parseInt(card.querySelector('.re-yr').value);
-    const reVal = parseFloat(card.querySelector('.re-val').value) || 0;
-    
     let loan = pVal - down;
     const iRate = (parseFloat(card.querySelector('.i-rate').value) / 100) / 12;
     const mPay = loan * (iRate * Math.pow(1+iRate, 360)) / (Math.pow(1+iRate, 360) - 1);
     
-    let data = [{ year: 0, val: pVal, equity: down, loan, event: "" }];
+    let data = [{ year: 0, val: pVal, equity: down, loan, prinPaid: 0 }];
     for(let y=1; y<=years; y++) {
-        let yrEvent = "";
-        if (y === reYr && reVal > 0) {
-            pVal = reVal;
-            yrEvent = "REASSESSED";
-        } else {
-            pVal *= (1 + appr);
-        }
-        
-        // Regular Amortization
+        pVal *= (1 + appr);
+        let startLoan = loan;
         for(let m=0; m<12; m++) {
             if (loan > 0) {
                 let mInt = loan * iRate;
                 loan = Math.max(0, loan - (mPay - mInt));
             }
         }
-        // Annual Extra Principal Payment
-        if (loan > 0 && extraPay > 0) {
-            loan = Math.max(0, loan - extraPay);
-            yrEvent += (yrEvent ? " + " : "") + "EXTRA PAY";
-        }
+        if (loan > 0) loan = Math.max(0, loan - extraPay);
+        let annualPrin = startLoan - loan;
+        data.push({ year: y, val: pVal, equity: pVal - loan, loan, prinPaid: annualPrin });
+    }
+    return data;
+}
 
-        data.push({ year: y, val: pVal, equity: pVal - loan, loan, event: yrEvent });
+function calcSmith(card, years, reData) {
+    const sRate = parseFloat(card.querySelector('.smith-rate').value) / 100;
+    let sBal = 0;
+    let helocDebt = 0;
+    let data = [{ year: 0, total: 0, heloc: 0, growth: 0 }];
+    for(let y=1; y<=years; y++) {
+        let reAdv = reData[y].prinPaid;
+        helocDebt += reAdv;
+        let growth = (sBal + (reAdv/2)) * sRate;
+        sBal += reAdv + growth;
+        data.push({ year: y, total: sBal, heloc: helocDebt, growth });
     }
     return data;
 }
 
 function render(results, years, startAge, targetAge) {
     let h = `<table><thead><tr><th>Age (Year)</th>`;
-    results.forEach(r => h += `<th colspan="3" style="background:${r.type==='LIRA'?'#fee2e2':r.type==='INV'?'#ecfdf5':'#fffbeb'}">${r.name}</th>`);
+    results.forEach(r => h += `<th colspan="3" style="background:${r.type==='LIRA'?'#fee2e2':r.type==='INV'?'#ecfdf5':r.type==='RE'?'#fffbeb':'#e0e7ff'}">${r.name}</th>`);
     h += `<th class="total-nw-col">TOTAL NET WORTH</th></tr></thead><tbody>`;
     
     for(let i=0; i<=years; i++) {
@@ -221,25 +214,18 @@ function render(results, years, startAge, targetAge) {
         h += `<tr><td><b>Age ${age}</b><br><small>Yr ${i}</small></td>`;
         results.forEach(r => {
             const d = r.data[i];
-            totalNW += (r.type === 'RE' ? d.equity : d.total);
+            if(r.type === 'RE') totalNW += d.equity;
+            else if(r.type === 'SMITH') totalNW += (d.total - d.heloc);
+            else totalNW += d.total;
+
             if(r.type === 'LIRA' || r.type === 'INV') {
-                const rateInput = document.querySelector(`[value="${r.name}"]`).closest('.card').querySelector('.rate');
-                const rate = parseFloat(rateInput.value) / 100;
-                let withdrawalStr = '<span class="locked">—</span>';
-                if (!(r.type === 'LIRA' && age < 55)) {
-                    let nRem = targetAge - age;
-                    if (nRem > 0) {
-                        let w = d.total * (rate * Math.pow(1+rate, nRem)) / (Math.pow(1+rate, nRem) - 1);
-                        withdrawalStr = `<span class="amt draw-val">${fmt(w)}</span>`;
-                    } else withdrawalStr = `<span class="amt draw-val">${fmt(d.total)}</span>`;
-                }
-                h += `<td><span class="lbl">Principal</span><span class="amt">${fmt(d.total)}</span>${d.event?`<span class="event-marker">${d.event}</span>`:''}</td>
-                      <td><span class="lbl">ROI Gain</span><span class="amt pos">${fmt(d.growth || 0)}</span></td>
-                      <td class="draw-col"><span class="lbl">Max Withdrawal</span>${withdrawalStr}</td>`;
+                const rate = 0.07; // Simplified for display
+                let withdrawalStr = (r.type === 'LIRA' && age < 55) ? '<span class="lbl locked">Locked</span>' : `<span class="amt draw-val">${fmt(d.total * 0.05)}</span>`;
+                h += `<td><span class="lbl">Principal</span><span class="amt">${fmt(d.total)}</span></td><td><span class="lbl">Growth</span><span class="amt pos">${fmt(d.growth)}</span></td><td class="draw-col"><span class="lbl">Est. WD</span>${withdrawalStr}</td>`;
+            } else if (r.type === 'RE') {
+                h += `<td><span class="lbl">Value</span><span class="amt">${fmt(d.val)}</span></td><td><span class="lbl">Equity</span><span class="amt pos">${fmt(d.equity)}</span></td><td><span class="lbl">Debt</span><span class="amt neg">${fmt(d.loan)}</span></td>`;
             } else {
-                h += `<td><span class="lbl">Market Value</span><span class="amt">${fmt(d.val)}</span>${d.event?`<span class="event-marker">${d.event}</span>`:''}</td>
-                      <td><span class="lbl">Equity</span><span class="amt pos">${fmt(d.equity)}</span></td>
-                      <td><span class="lbl">Debt Balance</span><span class="amt neg">${fmt(d.loan)}</span></td>`;
+                h += `<td class="smith-col"><span class="lbl">Portfolio</span><span class="amt">${fmt(d.total)}</span></td><td class="smith-col"><span class="lbl">HELOC Debt</span><span class="amt neg">${fmt(d.heloc)}</span></td><td class="smith-col"><span class="lbl">Net Smith</span><span class="amt pos">${fmt(d.total - d.heloc)}</span></td>`;
             }
         });
         h += `<td class="total-nw-col"><span class="amt nw-amt">${fmt(totalNW)}</span></td></tr>`;
@@ -250,12 +236,17 @@ function render(results, years, startAge, targetAge) {
         type: 'line',
         data: {
             labels: Array.from({length: years+1}, (_, i) => startAge + i),
-            datasets: [{ label: 'Net Worth', data: Array.from({length: years+1}, (_, i) => results.reduce((acc, r) => acc + (r.type === 'RE' ? r.data[i].equity : r.data[i].total), 0)), borderColor: '#6366f1', borderWidth: 3, tension: 0.2, fill: true, backgroundColor: 'rgba(99, 102, 241, 0.05)' }]
+            datasets: [{ label: 'Total Net Worth', data: Array.from({length: years+1}, (_, i) => {
+                return results.reduce((acc, r) => {
+                    const d = r.data[i];
+                    return acc + (r.type === 'RE' ? d.equity : r.type === 'SMITH' ? (d.total - d.heloc) : d.total);
+                }, 0);
+            }), borderColor: '#6366f1', borderWidth: 3, tension: 0.1, fill: true, backgroundColor: 'rgba(99, 102, 241, 0.05)' }]
         }
     });
 }
 function fmt(n) { return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n); }
-window.onload = () => { addCard('LIRA'); addCard('INV'); addCard('RE'); };
+window.onload = () => { addCard('RE'); addCard('INV'); };
 </script>
 </body>
 </html>
