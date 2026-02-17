@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smith Maneuver & Wealth Engine</title>
+    <title>Smith Maneuver Flywheel Simulator</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -14,233 +14,147 @@
         .investments-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 15px; }
         
         .card { background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 15px; position: relative; border-top: 5px solid #94a3b8; }
-        .lira-card { border-top-color: #ef4444; }
-        .inv-card { border-top-color: #10b981; }
         .re-card { border-top-color: #f59e0b; }
+        .lira-card { border-top-color: #ef4444; }
         
         .remove-btn { position: absolute; top: 10px; right: 10px; background: #fee2e2; color: #ef4444; border: none; border-radius: 4px; padding: 2px 6px; font-size: 10px; font-weight: bold; cursor: pointer; }
         .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px; }
         label { display: block; margin-bottom: 2px; font-size: 0.75rem; font-weight: 600; color: #64748b; }
-        input, select { width: 100%; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.85rem; }
+        input { width: 100%; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.85rem; }
         
-        .smith-toggle-area { background: #eef2ff; padding: 10px; border-radius: 6px; margin-top: 10px; border: 1px solid #c7d2fe; }
+        .flywheel-box { background: #e0f2fe; padding: 12px; border-radius: 6px; margin-top: 10px; border: 1px solid #7dd3fc; }
         .controls { display: flex; gap: 10px; margin: 20px 0; justify-content: center; }
         .btn { padding: 10px 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem; }
-        .btn-lira { background: #ef4444; color: white; }
-        .btn-inv { background: #10b981; color: white; }
-        .btn-re { background: #f59e0b; color: white; }
         .btn-calc { background: #1e293b; color: white; width: 300px; font-size: 1rem; }
 
         .table-scroll { overflow-x: auto; margin-top: 30px; border-radius: 8px; border: 1px solid #e2e8f0; }
         table { border-collapse: collapse; width: 100%; background: white; min-width: 1900px; }
-        th, td { padding: 8px; text-align: center; border: 1px solid #f1f5f9; font-size: 0.72rem; vertical-align: top;}
+        th, td { padding: 10px; text-align: center; border: 1px solid #f1f5f9; font-size: 0.75rem; vertical-align: top;}
         th { background: #f8fafc; font-weight: 700; position: sticky; top: 0; z-index: 10; }
         
-        td:first-child, th:first-child { position: sticky; left: 0; z-index: 11; background: #f1f5f9; border-right: 2px solid #cbd5e1; width: 80px; font-weight: bold; }
         .total-nw-col { background: #f5f3ff; border-left: 2px solid #6366f1 !important; font-weight: bold; width: 150px; }
         .smith-col { background: #f0f9ff; border-left: 1px solid #bae6fd; }
-        
-        .amt { display: block; font-weight: 700; font-size: 0.8rem; margin-bottom: 2px; }
-        .lbl { display: block; font-size: 0.52rem; color: #94a3b8; text-transform: uppercase; }
+        .amt { display: block; font-weight: 700; font-size: 0.85rem; margin-bottom: 2px; }
+        .lbl { display: block; font-size: 0.55rem; color: #94a3b8; text-transform: uppercase; }
         .pos { color: #10b981; } .neg { color: #ef4444; }
-        .draw-val { color: #059669; font-weight: 800; background: #ecfdf5; padding: 2px; border-radius: 3px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <h1>Comprehensive Strategy Simulator</h1>
-        <p>Managed Debt | Corrected Drawdowns | Smith Maneuver Portfolio</p>
+        <h1>Smith Maneuver Flywheel Simulator</h1>
+        <p>Convert debt into wealth with automated monthly growth reinvestment.</p>
     </div>
 
     <div class="input-section">
-        <div class="input-row" style="max-width: 500px; margin: 0 auto 20px; text-align:center;">
-            <div><label>Current Age</label><input type="number" id="current-age" value="45"></div>
-            <div><label>Target Age ($0 Depletion)</label><input type="number" id="target-age" value="95"></div>
+        <div id="investments-container" class="investments-grid">
+            <div class="card re-card" id="main-property">
+                <h3>Property & Smith Engine</h3>
+                <div class="input-row">
+                    <div><label>Home Value ($)</label><input type="number" id="p-val" value="750000"></div>
+                    <div><label>Mortgage Balance ($)</label><input type="number" id="m-bal" value="500000"></div>
+                </div>
+                <div class="input-row">
+                    <div><label>Mortgage Rate (%)</label><input type="number" id="i-rate" value="5.2"></div>
+                    <div><label>Appreciation (%)</label><input type="number" id="appr" value="3.5"></div>
+                </div>
+                <div class="input-row">
+                    <div><label>Target Depletion Age</label><input type="number" id="target-age" value="90"></div>
+                    <div><label>Current Age</label><input type="number" id="current-age" value="40"></div>
+                </div>
+                
+                <div class="flywheel-box">
+                    <label style="color:#0369a1"><input type="checkbox" id="flywheel-on" checked> <b>Enable Growth Accelerator (The Flywheel)</b></label>
+                    <p style="font-size: 0.65rem; color: #64748b; margin: 5px 0;">Automatically uses monthly Smith Portfolio gains to pay down mortgage principal.</p>
+                    <div class="input-row">
+                        <div><label>Portfolio Return (%)</label><input type="number" id="smith-rate" value="8"></div>
+                        <div><label>HELOC Int (%)</label><input type="number" id="heloc-rate" value="7.2"></div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div id="investments-container" class="investments-grid"></div>
         <div class="controls">
-            <button class="btn btn-lira" onclick="addCard('LIRA')">+ LIRA</button>
-            <button class="btn btn-inv" onclick="addCard('INV')">+ Investment</button>
-            <button class="btn btn-re" onclick="addCard('RE')">+ Property (Smith Opt)</button>
-            <button class="btn btn-calc" onclick="calculate()">Run 2026 Strategy Model</button>
+            <button class="btn btn-calc" onclick="calculate()">Simulate Wealth Flywheel</button>
         </div>
     </div>
-    <canvas id="mainChart" style="max-height: 350px; margin-bottom: 20px;"></canvas>
     <div id="table-output" class="table-scroll"></div>
 </div>
 
 <script>
-let chart = null;
-
-function addCard(type) {
-    const container = document.getElementById('investments-container');
-    const div = document.createElement('div');
-    div.className = `card ${type==='LIRA'?'lira-card':type==='INV'?'inv-card':'re-card'}`;
-    div.dataset.type = type;
-    let content = `<button class="remove-btn" onclick="this.parentElement.remove()">Remove</button>`;
-    
-    if (type === 'LIRA' || type === 'INV') {
-        content += `<h3>${type === 'LIRA' ? 'LIRA' : 'Liquid Account'}</h3>
-            <div class="input-row">
-                <div><label>Name</label><input type="text" class="name" value="${type}"></div>
-                <div><label>Start Balance ($)</label><input type="number" class="init" value="150000"></div>
-            </div>
-            <div class="input-row">
-                <div><label>Annual Return (%)</label><input type="number" class="rate" value="6"></div>
-                <div><label>Annual Contrib ($)</label><input type="number" class="cont" value="0"></div>
-            </div>`;
-    } else {
-        content += `<h3>Property</h3>
-            <div class="input-row">
-                <div><label>Home Value ($)</label><input type="number" class="p-val" value="800000"></div>
-                <div><label>Equity ($ or %)</label><input type="number" class="down" value="200000"></div>
-            </div>
-            <div class="input-row">
-                <div><label>Mortgage Rate (%)</label><input type="number" class="i-rate" value="4.8"></div>
-                <div><label>Appreciation (%)</label><input type="number" class="appr" value="3.5"></div>
-            </div>
-            <div class="input-row">
-                <div><label>Annual Extra Pay ($)</label><input type="number" class="re-extra" value="5000"></div>
-                <div><label>Reassess Yr / Val</label><div style="display:flex;gap:2px"><input type="number" class="re-yr" value="10" style="width:40px"><input type="number" class="re-val" value="0"></div></div>
-            </div>
-            <div class="smith-toggle-area">
-                <label style="color:#4338ca"><input type="checkbox" class="smith-on" checked> <b>Enable Smith Maneuver</b></label>
-                <div class="input-row" style="margin-top:5px">
-                    <div><label>Smith Return (%)</label><input type="number" class="smith-rate" value="8"></div>
-                    <div><label>HELOC Interest (%)</label><input type="number" class="heloc-rate" value="7.2"></div>
-                </div>
-            </div>`;
-    }
-    div.innerHTML = content;
-    container.appendChild(div);
-}
-
 function calculate() {
     const startAge = parseInt(document.getElementById('current-age').value);
     const targetAge = parseInt(document.getElementById('target-age').value);
     const years = targetAge - startAge;
-    const results = [];
     
-    document.querySelectorAll('.card').forEach(card => {
-        const type = card.dataset.type;
-        if (type === 'LIRA' || type === 'INV') {
-            results.push({ name: card.querySelector('.name').value, type, data: calcLiquid(card, years, targetAge, startAge) });
-        } else {
-            const reData = calcRE(card, years);
-            results.push({ name: "Property", type: 'RE', data: reData });
-            if (card.querySelector('.smith-on').checked) {
-                results.push({ name: "Smith Maneuver", type: 'SMITH', data: calcSmith(card, years, reData, targetAge, startAge) });
-            }
-        }
-    });
-    render(results, years, startAge, targetAge);
-}
-
-function getMaxWD(bal, rate, nRem) {
-    if (nRem <= 0) return bal;
-    if (rate === 0) return bal / nRem;
-    return bal * (rate * Math.pow(1 + rate, nRem)) / (Math.pow(1 + rate, nRem) - 1);
-}
-
-function calcLiquid(card, years, targetAge, startAge) {
-    let bal = parseFloat(card.querySelector('.init').value);
-    const rate = parseFloat(card.querySelector('.rate').value) / 100;
-    const cont = parseFloat(card.querySelector('.cont').value);
-    let data = [];
+    // Property Params
+    let pVal = parseFloat(document.getElementById('p-val').value);
+    let loan = parseFloat(document.getElementById('m-bal').value);
+    const appr = parseFloat(document.getElementById('appr.').value || 3.5) / 100;
+    const iRateM = (parseFloat(document.getElementById('i-rate').value) / 100) / 12;
+    const mPay = loan * (iRateM * Math.pow(1+iRateM, 300)) / (Math.pow(1+iRateM, 300) - 1); // Approx 25yr
+    
+    // Smith Params
+    const flywheel = document.getElementById('flywheel-on').checked;
+    const sRateM = (parseFloat(document.getElementById('smith-rate').value) / 100) / 12;
+    let sBal = 0;
+    let heloc = 0;
+    
+    let h = `<table><thead><tr><th>Age</th><th colspan="2">Property</th><th colspan="4" style="background:#f0f9ff">Smith Portfolio (The Flywheel)</th><th class="total-nw-col">NET WORTH</th></tr></thead><tbody>`;
+    
     for(let y=0; y<=years; y++) {
-        let nRem = targetAge - (startAge + y);
-        let maxWD = (card.dataset.type === 'LIRA' && (startAge+y) < 55) ? 0 : getMaxWD(bal, rate, nRem);
-        data.push({ balance: bal, maxWD });
-        bal = (bal + cont) * (1 + rate);
-    }
-    return data;
-}
-
-function calcRE(card, years) {
-    let pVal = parseFloat(card.querySelector('.p-val').value);
-    let equityInput = parseFloat(card.querySelector('.down').value);
-    const down = equityInput < 101 ? pVal * (equityInput/100) : equityInput;
-    const appr = parseFloat(card.querySelector('.appr').value) / 100;
-    const extra = parseFloat(card.querySelector('.re-extra').value) || 0;
-    const reYr = parseInt(card.querySelector('.re-yr').value);
-    const reVal = parseFloat(card.querySelector('.re-val').value) || 0;
-    
-    let loan = pVal - down;
-    const iRate = (parseFloat(card.querySelector('.i-rate').value) / 100) / 12;
-    const mPay = loan * (iRate * Math.pow(1+iRate, 360)) / (Math.pow(1+iRate, 360) - 1);
-    
-    let data = [];
-    for(let y=0; y<=years; y++) {
-        let startLoan = loan;
+        let age = startAge + y;
+        let yrGrowthToMortgage = 0;
+        
+        // Annual Step
         if (y > 0) {
-            pVal = (y === reYr && reVal > 0) ? reVal : pVal * (1 + appr);
-            for(let m=0; m<12; m++) if(loan > 0) loan = Math.max(0, loan - (mPay - (loan * iRate)));
-            if(loan > 0) loan = Math.max(0, loan - extra);
-        }
-        data.push({ val: pVal, loan, equity: pVal - loan, prinPaid: startLoan - loan });
-    }
-    return data;
-}
-
-function calcSmith(card, years, reData, targetAge, startAge) {
-    const sRate = parseFloat(card.querySelector('.smith-rate').value) / 100;
-    let sBal = 0; let heloc = 0; let data = [];
-    for(let y=0; y<=years; y++) {
-        let reAdv = reData[y].prinPaid;
-        heloc += reAdv;
-        let nRem = targetAge - (startAge + y);
-        let maxWD = getMaxWD(sBal, sRate, nRem);
-        data.push({ balance: sBal, heloc, maxWD, net: sBal - heloc });
-        sBal = (sBal + reAdv) * (1 + sRate);
-    }
-    return data;
-}
-
-function render(results, years, startAge, targetAge) {
-    let h = `<table><thead><tr><th>Age</th>`;
-    results.forEach(r => {
-        let span = r.type === 'SMITH' ? 3 : 2;
-        h += `<th colspan="${span}" style="background:${r.type==='LIRA'?'#fee2e2':r.type==='INV'?'#ecfdf5':r.type==='RE'?'#fffbeb':'#e0e7ff'}">${r.name}</th>`;
-    });
-    h += `<th class="total-nw-col">NET WORTH</th></tr></thead><tbody>`;
-    
-    for(let i=0; i<=years; i++) {
-        let age = startAge + i;
-        let totalNW = 0;
-        h += `<tr><td><b>${age}</b></td>`;
-        results.forEach(r => {
-            const d = r.data[i];
-            if(r.type === 'RE') {
-                totalNW += d.equity;
-                h += `<td><span class="lbl">Value</span>${fmt(d.val)}</td><td><span class="lbl">Mortgage</span><span class="neg">${fmt(d.loan)}</span></td>`;
-            } else if(r.type === 'SMITH') {
-                totalNW += d.net;
-                h += `<td class="smith-col"><span class="lbl">Portfolio</span>${fmt(d.balance)}</td><td class="smith-col"><span class="lbl">HELOC Debt</span><span class="neg">${fmt(d.heloc)}</span></td><td class="smith-col"><span class="lbl">Sustainable WD</span><span class="draw-val">${fmt(d.maxWD)}</span></td>`;
-            } else {
-                totalNW += d.balance;
-                let wd = (r.type === 'LIRA' && age < 55) ? '<span style="color:#94a3b8">LOCKED</span>' : `<span class="draw-val">${fmt(d.maxWD)}</span>`;
-                h += `<td><span class="lbl">Balance</span>${fmt(d.balance)}</td><td><span class="lbl">Sustainable WD</span>${wd}</td>`;
+            pVal *= (1 + appr);
+            // Monthly calculation to handle Flywheel reinvestment
+            for(let m=0; m<12; m++) {
+                if (loan > 0) {
+                    let mInt = loan * iRateM;
+                    let mPrin = Math.min(loan, mPay - mInt);
+                    loan -= mPrin;
+                    
+                    // The Accelerator: Apply Portfolio growth to Mortgage Principal
+                    if (flywheel && loan > 0) {
+                        let mGrowth = sBal * sRateM;
+                        yrGrowthToMortgage += mGrowth;
+                        loan = Math.max(0, loan - mGrowth);
+                        mPrin += mGrowth; // This is now total principal paid
+                    }
+                    
+                    // Readvance to HELOC and Invest
+                    heloc += mPrin;
+                    sBal += mPrin + (sBal * sRateM);
+                } else {
+                    // Mortgage is dead, portfolio just grows
+                    sBal *= (1 + sRateM);
+                }
             }
-        });
-        h += `<td class="total-nw-col">${fmt(totalNW)}</td></tr>`;
-    }
-    document.getElementById('table-output').innerHTML = h + `</tbody></table>`;
-    
-    if(chart) chart.destroy();
-    chart = new Chart(document.getElementById('mainChart'), {
-        type: 'line',
-        data: {
-            labels: Array.from({length: years+1}, (_, i) => startAge + i),
-            datasets: [{ label: 'Total Net Worth', data: Array.from({length: years+1}, (_, i) => {
-                return results.reduce((acc, r) => acc + (r.type === 'RE' ? r.data[i].equity : r.type === 'SMITH' ? r.data[i].net : r.data[i].balance), 0);
-            }), borderColor: '#6366f1', fill: true, backgroundColor: 'rgba(99, 102, 241, 0.05)', tension: 0.1 }]
         }
-    });
+        
+        let nRem = targetAge - age;
+        let maxWD = nRem > 0 ? (sBal * (sRateM*12 * Math.pow(1+sRateM*12, nRem)) / (Math.pow(1+sRateM*12, nRem)-1)) : sBal;
+        let totalNW = (pVal - loan) + (sBal - heloc);
+
+        h += `<tr>
+            <td><b>${age}</b></td>
+            <td><span class="lbl">Value</span>${fmt(pVal)}</td>
+            <td><span class="lbl">Mortgage</span><span class="neg">${fmt(loan)}</span></td>
+            <td class="smith-col"><span class="lbl">Balance</span>${fmt(sBal)}</td>
+            <td class="smith-col"><span class="lbl">HELOC Debt</span><span class="neg">${fmt(heloc)}</span></td>
+            <td class="smith-col"><span class="lbl">Flywheel Contrib</span><span class="pos">${fmt(yrGrowthToMortgage)}</span></td>
+            <td class="smith-col"><span class="lbl">Sustainable WD</span><span class="draw-val">${fmt(maxWD)}</span></td>
+            <td class="total-nw-col">${fmt(totalNW)}</td>
+        </tr>`;
+    }
+    
+    document.getElementById('table-output').innerHTML = h + `</tbody></table>`;
 }
+
 function fmt(n) { return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n); }
-window.onload = () => { addCard('RE'); addCard('LIRA'); calculate(); };
+window.onload = calculate;
 </script>
 </body>
 </html>
