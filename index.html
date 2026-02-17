@@ -2,55 +2,64 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>The Wealth Architect v2026</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Wealth Architect: Multi-Event Model</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f1f5f9; padding: 20px; color: #1e293b; }
         .container { max-width: 1600px; margin: 0 auto; background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 15px; margin-bottom: 20px; }
         .card { border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px; background: #fff; border-top: 4px solid #64748b; }
-        .re { border-top-color: #f59e0b; } .inv { border-top-color: #10b981; } .lira { border-top-color: #ef4444; }
-        label { display: block; font-size: 11px; font-weight: 700; color: #64748b; margin-top: 5px; }
-        input { width: 100%; padding: 5px; border: 1px solid #cbd5e1; border-radius: 4px; box-sizing: border-box; }
-        .event-box { margin-top: 10px; padding: 10px; background: #f8fafc; border: 1px dashed #cbd5e1; }
-        .btn { padding: 10px 20px; background: #1e293b; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
-        .table-wrap { overflow-x: auto; margin-top: 20px; }
-        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .re { border-top-color: #f59e0b; } .inv { border-top-color: #10b981; }
+        label { display: block; font-size: 11px; font-weight: 700; color: #64748b; margin-top: 8px; }
+        input { width: 100%; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; box-sizing: border-box; }
+        .event-list { margin-top: 15px; padding: 10px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 6px; }
+        .event-row { display: flex; gap: 5px; margin-bottom: 8px; align-items: flex-end; }
+        .btn-add { font-size: 10px; background: #10b981; color: white; border: none; padding: 5px; cursor: pointer; border-radius: 3px; margin-top: 5px; }
+        .btn-del { background: #ef4444; color: white; border: none; padding: 5px 8px; cursor: pointer; border-radius: 3px; }
+        .btn-run { padding: 15px; background: #1e293b; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1rem; }
+        .table-wrap { overflow-x: auto; margin-top: 25px; }
+        table { width: 100%; border-collapse: collapse; font-size: 11px; }
         th, td { border: 1px solid #e2e8f0; padding: 8px; text-align: center; }
-        th { background: #f8fafc; }
-        .lump { background: #fff7ed; color: #c2410c; font-weight: bold; }
-        .wd { color: #059669; font-weight: bold; }
+        th { background: #f8fafc; position: sticky; top: 0; }
+        .lump-hit { background: #fef3c7; font-weight: bold; color: #92400e; }
+        .neg { color: #ef4444; }
+        .total-col { background: #f1f5f9; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Unified Wealth & Smith Flywheel Engine</h2>
+    <h2>Strategic Wealth & Smith Flywheel Engine</h2>
     <div class="grid">
         <div class="card">
+            <strong>Timeline Control</strong>
             <label>Current Age</label><input type="number" id="curAge" value="40">
-            <label>Target Depletion Age</label><input type="number" id="tarAge" value="90">
-            <button class="btn" onclick="runSim()">🚀 Run Simulation</button>
+            <label>End Simulation Age</label><input type="number" id="tarAge" value="85">
+            <button class="btn-run" onclick="runSim()">🚀 Re-Calculate All Assets</button>
         </div>
 
         <div class="card re">
-            <strong>Property & Smith Maneuver</strong>
+            <strong>Property & Smith Flywheel</strong>
             <label>Home Value ($)</label><input type="number" id="reVal" value="800000">
             <label>Mortgage Debt ($)</label><input type="number" id="reDebt" value="500000">
-            <label>Mortgage Rate (%)</label><input type="number" id="reRate" value="5">
-            <label>Smith Portfolio Return (%)</label><input type="number" id="smRate" value="8">
+            <label>Mortgage Rate (%)</label><input type="number" id="reRate" value="5.0">
+            <label>Investment Return (%)</label><input type="number" id="smRate" value="8.0">
         </div>
 
         <div class="card inv">
             <strong>Investment Account</strong>
-            <label>Balance ($)</label><input type="number" id="invBal" value="100000">
-            <label>Return (%)</label><input type="number" id="invRate" value="7">
-            <div class="event-box">
-                <label>Lump Sum Withdrawal (Age, Amount)</label>
-                <div style="display:flex; gap:5px">
-                    <input type="number" id="invEvAge" placeholder="Age" style="width:60px">
-                    <input type="number" id="invEvAmt" placeholder="Amount ($)">
+            <label>Initial Balance ($)</label><input type="number" id="invBal" value="150000">
+            <label>Annual Return (%)</label><input type="number" id="invRate" value="7.0">
+            
+            <div class="event-list" id="eventList">
+                <strong>Targeted Withdrawals</strong>
+                <div id="eventsContainer">
+                    <div class="event-row">
+                        <div><label>Age</label><input type="number" class="evAge" value="65" style="width:50px"></div>
+                        <div><label>Amount ($)</label><input type="number" class="evAmt" value="50000" style="width:100px"></div>
+                        <button class="btn-del" onclick="this.parentElement.remove()">×</button>
+                    </div>
                 </div>
+                <button class="btn-add" onclick="addEventRow()">+ Add Withdrawal Event</button>
             </div>
         </div>
     </div>
@@ -59,87 +68,95 @@
 </div>
 
 <script>
-function fmt(v) { return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(v); }
-
-function getSust(P, r_annual, n, futureAge, evAge, evAmt) {
-    if (n <= 0) return P;
-    let r = r_annual / 100;
-    let pvEv = 0;
-    if (evAge > futureAge && evAge < (futureAge + n)) {
-        pvEv = evAmt / Math.pow(1 + r, evAge - futureAge);
-    }
-    let adjP = Math.max(0, P - pvEv);
-    if (r === 0) return adjP / n;
-    return adjP * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+function addEventRow() {
+    const container = document.getElementById('eventsContainer');
+    const row = document.createElement('div');
+    row.className = 'event-row';
+    row.innerHTML = `
+        <div><label>Age</label><input type="number" class="evAge" placeholder="60" style="width:50px"></div>
+        <div><label>Amount ($)</label><input type="number" class="evAmt" placeholder="20000" style="width:100px"></div>
+        <button class="btn-del" onclick="this.parentElement.remove()">×</button>
+    `;
+    container.appendChild(row);
 }
+
+function fmt(v) { return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(v); }
 
 function runSim() {
     const startAge = parseInt(document.getElementById('curAge').value);
     const endAge = parseInt(document.getElementById('tarAge').value);
-    const years = endAge - startAge;
-
-    // Property Init
+    
+    // Property/Smith Init
     let hVal = parseFloat(document.getElementById('reVal').value);
     let mDebt = parseFloat(document.getElementById('reDebt').value);
     const mRateM = (parseFloat(document.getElementById('reRate').value) / 100) / 12;
-    const mPay = mDebt * (mRateM * Math.pow(1 + mRateM, 300)) / (Math.pow(1 + mRateM, 300) - 1);
-    
-    // Smith Init
-    let sBal = 0; let sDebt = 0;
-    const sRate = parseFloat(document.getElementById('smRate').value);
+    const mPay = mDebt > 0 ? mDebt * (mRateM * Math.pow(1 + mRateM, 300)) / (Math.pow(1 + mRateM, 300) - 1) : 0;
+    let sBal = 0, sDebt = 0, smReturn = parseFloat(document.getElementById('smRate').value);
 
-    // Inv Init
+    // Investment Init
     let iBal = parseFloat(document.getElementById('invBal').value);
-    const iRate = parseFloat(document.getElementById('invRate').value);
-    const evAge = parseInt(document.getElementById('invEvAge').value);
-    const evAmt = parseFloat(document.getElementById('invEvAmt').value || 0);
+    const iRate = parseFloat(document.getElementById('invRate').value) / 100;
+    
+    // Collect all custom events
+    const eventRows = document.querySelectorAll('.event-row');
+    let events = Array.from(eventRows).map(row => ({
+        age: parseInt(row.querySelector('.evAge').value),
+        amt: parseFloat(row.querySelector('.evAmt').value || 0)
+    }));
 
-    let html = `<table><thead><tr><th>Age</th><th>Home Value</th><th>Mortgage</th><th>Smith Port.</th><th>HELOC Debt</th><th>Inv. Balance</th><th>Inv. Lump Sum</th><th>Inv. Level WD</th><th>Net Worth</th></tr></thead><tbody>`;
+    let html = `<table><thead><tr>
+        <th>Age</th>
+        <th>Home Value</th>
+        <th>Mortgage</th>
+        <th>Smith Portfolio</th>
+        <th>HELOC Debt</th>
+        <th>Inv. Balance</th>
+        <th>Withdrawal Logic</th>
+        <th>NET WORTH</th>
+    </tr></thead><tbody>`;
 
-    for (let y = 0; y <= years; y++) {
-        let age = startAge + y;
-        let nRem = endAge - age;
+    for (let age = startAge; age <= endAge; age++) {
+        // 1. Find all withdrawals hitting this age
+        let totalWithdrawal = events
+            .filter(e => e.age === age)
+            .reduce((sum, e) => sum + e.amt, 0);
+        
+        if (totalWithdrawal > iBal) totalWithdrawal = iBal;
 
-        // 1. Calculate Inv WD and Lump
-        let lump = (age === evAge) ? evAmt : 0;
-        let iWD = getSust(iBal, iRate, nRem, age, evAge, evAmt);
-
-        // 2. Net Worth Calculation
         let nw = (hVal - mDebt) + (sBal - sDebt) + iBal;
 
-        html += `<tr>
+        html += `<tr class="${totalWithdrawal > 0 ? 'lump-hit' : ''}">
             <td>${age}</td>
             <td>${fmt(hVal)}</td>
             <td class="neg">${fmt(mDebt)}</td>
             <td>${fmt(sBal)}</td>
             <td class="neg">${fmt(sDebt)}</td>
             <td>${fmt(iBal)}</td>
-            <td class="${lump?'lump':''}">${lump ? fmt(lump) : '-'}</td>
-            <td class="wd">${fmt(iWD)}</td>
-            <td><strong>${fmt(nw)}</strong></td>
+            <td>${totalWithdrawal > 0 ? 'WITHDREW ' + fmt(totalWithdrawal) : '-'}</td>
+            <td class="total-col">${fmt(nw)}</td>
         </tr>`;
 
-        // 3. Update Balances for next year
-        if (y < years) {
-            hVal *= 1.03; // 3% fixed growth for simplicity
+        // Advance to next year
+        if (age < endAge) {
+            hVal *= 1.03; 
             for (let m = 0; m < 12; m++) {
                 if (mDebt > 0) {
                     let mInt = mDebt * mRateM;
                     let mPrin = Math.min(mDebt, mPay - mInt);
                     mDebt -= mPrin;
                     
-                    // Flywheel: Port growth pays principal
-                    let mGrowth = sBal * (sRate/1200);
-                    mDebt = Math.max(0, mDebt - mGrowth);
+                    let growth = sBal * (smReturn/1200);
+                    mDebt = Math.max(0, mDebt - growth);
                     
-                    let totalP = mPrin + mGrowth;
+                    let totalP = mPrin + growth;
                     sDebt += totalP;
-                    sBal += totalP + (sBal * (sRate/1200));
+                    sBal += totalP + (sBal * (smReturn/1200));
                 } else {
-                    sBal *= (1 + sRate/1200);
+                    sBal *= (1 + smReturn/1200);
                 }
             }
-            iBal = (iBal - iWD - lump) * (1 + (iRate/100));
+            // Subtract withdrawal and compound investment
+            iBal = (iBal - totalWithdrawal) * (1 + iRate);
             if (iBal < 0) iBal = 0;
         }
     }
@@ -148,7 +165,6 @@ function runSim() {
     document.getElementById('output').innerHTML = html;
 }
 
-// Start with a run
 window.onload = runSim;
 </script>
 </body>
