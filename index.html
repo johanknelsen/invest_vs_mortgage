@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Granular Wealth Architect v4.0</title>
+    <title>Granular Wealth Architect v4.1</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f1f5f9; padding: 20px; color: #1e293b; line-height: 1.4; }
         .container { max-width: 98%; margin: 0 auto; background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
@@ -14,7 +14,6 @@
         label { display: block; font-size: 11px; font-weight: 700; color: #64748b; margin-top: 8px; }
         input { width: 100%; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; box-sizing: border-box; }
         
-        /* Flow Management Styling */
         .flow-manager { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
         .flow-zone { background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; }
         .flow-zone strong { font-size: 11px; display: block; margin-bottom: 5px; color: #334155; border-bottom: 1px solid #cbd5e1; }
@@ -31,7 +30,6 @@
         th { background: #f8fafc; position: sticky; top: 0; z-index: 10; font-size: 10px; }
         .header-main { background: #334155 !important; color: white; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
         
-        /* Table Highlighting */
         .lump-hit { background: #fffbeb; font-weight: bold; color: #b45309; }
         .cont-hit { background: #f0fdf4; font-weight: bold; color: #166534; }
         .interest-col { color: #2563eb; background: #f0f7ff; font-weight: 600; }
@@ -42,9 +40,7 @@
 <body>
 
 <div class="container">
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h2>Omnibus Wealth Architect <span style="font-size:0.5em; font-weight:normal; color:#64748b">| Edition 4.0: Granular Flow Control</span></h2>
-    </div>
+    <h2>Omnibus Wealth Architect <span style="font-size:0.5em; font-weight:normal; color:#64748b">| Edition 4.1: Growth-First Compounding</span></h2>
     
     <div class="controls-top">
         <div><label style="color:white">Current Age</label><input type="number" id="curAge" value="45" style="width:70px"></div>
@@ -130,7 +126,8 @@ function getSustainableWD(P, r, n, events, futureAge) {
     });
     let adjP = Math.max(0, P + netPV);
     if (r_dec === 0) return adjP / n;
-    return adjP * (r_dec * Math.pow(1 + r_dec, n)) / (Math.pow(1 + r_dec, n) - 1);
+    // Adjusted PMT formula reflecting that withdrawals happen at year-end after compounding
+    return (adjP * (r_dec * Math.pow(1 + r_dec, n)) / (Math.pow(1 + r_dec, n) - 1)) / (1 + r_dec);
 }
 
 function fmt(v) { return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(v); }
@@ -202,7 +199,9 @@ function runSim() {
                 totalNW += a.bal;
                 let interestEarned = a.bal * (a.rate / 100);
                 let shadowWD = getSustainableWD(a.bal, a.rate, endAge - age, a.events, age);
-                let closing = (a.bal + totalIn - totalOut) * (1 + (a.rate/100));
+                
+                // Growth-First Calculation Order
+                let closing = (a.bal + interestEarned) + totalIn - totalOut;
 
                 html += `<td>${fmt(a.bal)}</td>
                          <td class="interest-col">${fmt(interestEarned)}</td>
