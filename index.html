@@ -2,13 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Granular Wealth Architect v4.3</title>
+    <title>Granular Wealth Architect v4.4</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f1f5f9; padding: 20px; color: #1e293b; line-height: 1.4; }
         .container { max-width: 98%; margin: 0 auto; background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .controls-top { display: flex; gap: 15px; background: #1e293b; color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; align-items: flex-end; flex-wrap: wrap; }
         
-        /* Updated Grid to smooth wrapping flexbox cards */
         .grid { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 20px; }
         .card { flex: 1 1 480px; min-width: 320px; border: 1px solid #e2e8f0; padding: 15px; border-radius: 10px; background: #fff; position: relative; border-top: 5px solid #64748b; }
         
@@ -28,7 +27,7 @@
         .btn-run:hover { background: #1d4ed8; }
 
         .table-wrap { overflow-x: auto; margin-top: 25px; border-radius: 8px; border: 1px solid #e2e8f0; }
-        table { width: 100%; border-collapse: collapse; font-size: 10px; min-width: 1900px; }
+        table { width: 100%; border-collapse: collapse; font-size: 10px; min-width: 1950px; }
         th, td { border: 1px solid #e2e8f0; padding: 6px 3px; text-align: center; }
         th { background: #f8fafc; position: sticky; top: 0; z-index: 10; font-size: 10px; }
         .header-main { background: #334155 !important; color: white; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -36,6 +35,7 @@
         .lump-hit { background: #fffbeb; font-weight: bold; color: #b45309; }
         .cont-hit { background: #f0fdf4; font-weight: bold; color: #166534; }
         .interest-col { color: #2563eb; background: #f0f7ff; font-weight: 600; }
+        .drag-col { color: #b91c1c; background: #fef2f2; font-weight: 600; }
         .shadow-wd { background: #f0fdfa; color: #0d9488; font-weight: bold; }
         .total-col { background: #f1f5f9; font-weight: 900; font-size: 11px; }
     </style>
@@ -43,7 +43,7 @@
 <body>
 
 <div class="container">
-    <h2>Omnibus Wealth Architect <span style="font-size:0.5em; font-weight:normal; color:#64748b">| Edition 4.3: Responsive Multi-Card Architecture</span></h2>
+    <h2>Omnibus Wealth Architect <span style="font-size:0.5em; font-weight:normal; color:#64748b">| Edition 4.4: HELOC Interest Drag Tracking</span></h2>
     
     <div class="controls-top">
         <div><label style="color:white">Current Age</label><input type="number" id="curAge" value="45" style="width:70px"></div>
@@ -72,9 +72,15 @@ function addProperty() {
             <div><label>Mortgage Rate (%)</label><input type="number" class="reRate" value="5.0"></div>
             <div><label>Portfolio Return (%)</label><input type="number" class="smRate" value="8.0"></div>
         </div>
-        <div style="margin-top:10px; padding:8px; background:#fffbeb; border:1px dashed #f59e0b; border-radius:6px;">
-            <label style="color:#b45309; margin-top:0;">⚡ Extra Monthly Prepayment ($)</label>
-            <input type="number" class="rePrepay" value="0" placeholder="e.g. 500">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px; padding:8px; background:#fffbeb; border:1px dashed #f59e0b; border-radius:6px;">
+            <div>
+                <label style="color:#b45309; margin-top:0;">⚡ Monthly Prepayment ($)</label>
+                <input type="number" class="rePrepay" value="0" placeholder="e.g. 500">
+            </div>
+            <div>
+                <label style="color:#b45309; margin-top:0;">🛑 HELOC Interest Rate (%)</label>
+                <input type="number" class="helocRate" value="5.5" step="0.1">
+            </div>
         </div>
     `;
     document.getElementById('accountsContainer').appendChild(div);
@@ -147,11 +153,13 @@ function runSim() {
         if (acc.dataset.type === 'RE') {
             const mDebt = parseFloat(acc.querySelector('.reDebt').value);
             const mRateM = (parseFloat(acc.querySelector('.reRate').value) / 100) / 12;
+            const hRateM = (parseFloat(acc.querySelector('.helocRate').value || 5.5) / 100) / 12;
             return {
                 type: 'RE', hVal: parseFloat(acc.querySelector('.reVal').value),
-                mDebt, mRateM, mPay: mDebt * (mRateM * Math.pow(1 + mRateM, 300)) / (Math.pow(1 + mRateM, 300) - 1),
+                mDebt, mRateM, hRateM, mPay: mDebt * (mRateM * Math.pow(1 + mRateM, 300)) / (Math.pow(1 + mRateM, 300) - 1),
                 prepay: parseFloat(acc.querySelector('.rePrepay').value || 0),
-                sBal: 0, sDebt: 0, smRate: parseFloat(acc.querySelector('.smRate').value)
+                sBal: 0, sDebt: 0, smRate: parseFloat(acc.querySelector('.smRate').value),
+                lastYrDrag: 0
             };
         } else {
             const events = [];
@@ -173,13 +181,13 @@ function runSim() {
 
     let html = `<table><thead><tr><th class="header-main">Age</th>`;
     processedAccounts.forEach(a => {
-        if (a.type === 'RE') html += `<th colspan="5" class="header-main">Smith Flywheel Property</th>`;
+        if (a.type === 'RE') html += `<th colspan="6" class="header-main">Smith Flywheel Property</th>`;
         else html += `<th colspan="6" class="header-main">${a.name}</th>`;
     });
     html += `<th class="header-main total-col">TOTAL NET WORTH</th></tr><tr><th>-</th>`;
     
     processedAccounts.forEach(a => {
-        if (a.type === 'RE') html += `<th>Equity</th><th>Portfolio</th><th>Yr Return</th><th>Max WD</th><th>HELOC</th>`;
+        if (a.type === 'RE') html += `<th>Equity</th><th>Portfolio</th><th>Yr Return</th><th>HELOC Drag</th><th>Max WD</th><th>HELOC Bal</th>`;
         else html += `<th>Open Balance</th><th>Interest</th><th>Shadow Max WD</th><th>(+) Additions</th><th>(-) Withdrawals</th><th>Closing</th>`;
     });
     html += `<th>Combined</th></tr></thead><tbody>`;
@@ -190,12 +198,15 @@ function runSim() {
         
         processedAccounts.forEach(a => {
             if (a.type === 'RE') {
+                // Net worth contribution: (Home Value - Mortgage Debt) + (Investment Portfolio - HELOC Leverage Balance)
                 totalNW += (a.hVal - a.mDebt) + (a.sBal - a.sDebt);
                 let interestEarned = a.sBal * (a.smRate / 100);
                 let shadowWD = getSustainableWD(a.sBal, a.smRate, endAge - age, [], age);
+                
                 html += `<td>${fmt(a.hVal - a.mDebt)}</td>
                          <td>${fmt(a.sBal)}</td>
                          <td class="interest-col">${fmt(interestEarned)}</td>
+                         <td class="drag-col">${a.lastYrDrag > 0 ? '-' + fmt(a.lastYrDrag) : '-'}</td>
                          <td class="shadow-wd">${fmt(shadowWD)}</td>
                          <td class="neg">${fmt(a.sDebt)}</td>`;
             } else {
@@ -220,22 +231,38 @@ function runSim() {
         });
         html += `<td class="total-col">${fmt(totalNW)}</td></tr>`;
 
-        // Advance Smith Model Logic
+        // Advance Smith Model Logic & Calculate Internal HELOC Friction Monthly
         processedAccounts.filter(a => a.type === 'RE').forEach(a => {
             a.hVal *= 1.03;
+            let annualizedDragAccumulator = 0;
+            
             for (let m = 0; m < 12; m++) {
+                // Calculate monthly interest payment due on the current outstanding HELOC balance
+                if (a.sDebt > 0) {
+                    let monthlyHelocCost = a.sDebt * a.hRateM;
+                    annualizedDragAccumulator += monthlyHelocCost;
+                    a.sDebt += monthlyHelocCost; // Interest stacks onto the credit line balance
+                }
+
                 if (a.mDebt > 0) {
                     let mInt = a.mDebt * a.mRateM;
                     let mPrin = Math.min(a.mDebt, a.mPay - mInt);
                     a.mDebt -= mPrin;
+                    
                     let extraApplied = Math.min(a.mDebt, a.prepay);
                     a.mDebt -= extraApplied;
+                    
                     let growth = a.sBal * (a.smRate/1200);
                     a.mDebt = Math.max(0, a.mDebt - growth);
+                    
                     let totalP = mPrin + extraApplied + growth;
-                    a.sDebt += totalP; a.sBal += totalP + (a.sBal * (a.smRate/1200));
-                } else { a.sBal *= (1 + a.smRate/1200); }
+                    a.sDebt += totalP; 
+                    a.sBal += totalP + growth;
+                } else { 
+                    a.sBal += (a.sBal * (a.smRate/1200)); 
+                }
             }
+            a.lastYrDrag = annualizedDragAccumulator;
         });
     }
     document.getElementById('output').innerHTML = html + `</tbody></table>`;
