@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Granular Wealth Architect v4.1</title>
+    <title>Granular Wealth Architect v4.2</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f1f5f9; padding: 20px; color: #1e293b; line-height: 1.4; }
         .container { max-width: 98%; margin: 0 auto; background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
@@ -40,7 +40,7 @@
 <body>
 
 <div class="container">
-    <h2>Omnibus Wealth Architect <span style="font-size:0.5em; font-weight:normal; color:#64748b">| Edition 4.1: Growth-First Compounding</span></h2>
+    <h2>Omnibus Wealth Architect <span style="font-size:0.5em; font-weight:normal; color:#64748b">| Edition 4.2: Accelerated Debt Destruction</span></h2>
     
     <div class="controls-top">
         <div><label style="color:white">Current Age</label><input type="number" id="curAge" value="45" style="width:70px"></div>
@@ -68,6 +68,10 @@ function addProperty() {
             <div><label>Mortgage Debt ($)</label><input type="number" class="reDebt" value="400000"></div>
             <div><label>Mortgage Rate (%)</label><input type="number" class="reRate" value="5.0"></div>
             <div><label>Portfolio Return (%)</label><input type="number" class="smRate" value="8.0"></div>
+        </div>
+        <div style="margin-top:10px; padding:8px; background:#fffbeb; border:1px dashed #f59e0b; border-radius:6px;">
+            <label style="color:#b45309; margin-top:0;">⚡ Extra Monthly Prepayment ($)</label>
+            <input type="number" class="rePrepay" value="0" placeholder="e.g. 500">
         </div>
     `;
     document.getElementById('accountsContainer').appendChild(div);
@@ -126,7 +130,6 @@ function getSustainableWD(P, r, n, events, futureAge) {
     });
     let adjP = Math.max(0, P + netPV);
     if (r_dec === 0) return adjP / n;
-    // Adjusted PMT formula reflecting that withdrawals happen at year-end after compounding
     return (adjP * (r_dec * Math.pow(1 + r_dec, n)) / (Math.pow(1 + r_dec, n) - 1)) / (1 + r_dec);
 }
 
@@ -144,6 +147,7 @@ function runSim() {
             return {
                 type: 'RE', hVal: parseFloat(acc.querySelector('.reVal').value),
                 mDebt, mRateM, mPay: mDebt * (mRateM * Math.pow(1 + mRateM, 300)) / (Math.pow(1 + mRateM, 300) - 1),
+                prepay: parseFloat(acc.querySelector('.rePrepay').value || 0),
                 sBal: 0, sDebt: 0, smRate: parseFloat(acc.querySelector('.smRate').value)
             };
         } else {
@@ -199,8 +203,6 @@ function runSim() {
                 totalNW += a.bal;
                 let interestEarned = a.bal * (a.rate / 100);
                 let shadowWD = getSustainableWD(a.bal, a.rate, endAge - age, a.events, age);
-                
-                // Growth-First Calculation Order
                 let closing = (a.bal + interestEarned) + totalIn - totalOut;
 
                 html += `<td>${fmt(a.bal)}</td>
@@ -215,19 +217,31 @@ function runSim() {
         });
         html += `<td class="total-col">${fmt(totalNW)}</td></tr>`;
 
-        // Advance Smith Model Logic
+        // Advance Property with Prepayments Integration
         processedAccounts.filter(a => a.type === 'RE').forEach(a => {
-            a.hVal *= 1.03;
+            a.hVal *= 1.03; // 3% Real Estate Appreciation
             for (let m = 0; m < 12; m++) {
                 if (a.mDebt > 0) {
                     let mInt = a.mDebt * a.mRateM;
+                    // Standard amortized principal payment
                     let mPrin = Math.min(a.mDebt, a.mPay - mInt);
                     a.mDebt -= mPrin;
-                    let growth = a.sBal * (a.smRate/1200);
-                    a.mDebt = Math.max(0, a.mDebt - growth);
-                    let totalP = mPrin + growth;
-                    a.sDebt += totalP; a.sBal += totalP + (a.sBal * (a.smRate/1200));
-                } else { a.sBal *= (1 + a.smRate/1200); }
+                    
+                    // Add the user's custom monthly extra prepayment directly to principal reduction
+                    let extraApplied = Math.min(a.mDebt, a.prepay);
+                    a.mDebt -= extraApplied;
+
+                    // Smith Flywheel expansion mechanics
+                    let portfolioGrowth = a.sBal * (a.smRate/1200);
+                    a.mDebt = Math.max(0, a.mDebt - portfolioGrowth);
+                    
+                    let totalP = mPrin + extraApplied + portfolioGrowth;
+                    a.sDebt += totalP; 
+                    a.sBal += totalP + (a.sBal * (a.smRate/1200));
+                } else { 
+                    // Mortgage is killed; investment portfolio compounds purely
+                    a.sBal *= (1 + a.smRate/1200); 
+                }
             }
         });
     }
