@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Granular Wealth Architect v4.4</title>
+    <title>Granular Wealth Architect v4.5</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f1f5f9; padding: 20px; color: #1e293b; line-height: 1.4; }
         .container { max-width: 98%; margin: 0 auto; background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
@@ -43,7 +43,7 @@
 <body>
 
 <div class="container">
-    <h2>Omnibus Wealth Architect <span style="font-size:0.5em; font-weight:normal; color:#64748b">| Edition 4.4: HELOC Interest Drag Tracking</span></h2>
+    <h2>Omnibus Wealth Architect <span style="font-size:0.5em; font-weight:normal; color:#64748b">| Edition 4.5: Net Return Reporting</span></h2>
     
     <div class="controls-top">
         <div><label style="color:white">Current Age</label><input type="number" id="curAge" value="45" style="width:70px"></div>
@@ -159,7 +159,7 @@ function runSim() {
                 mDebt, mRateM, hRateM, mPay: mDebt * (mRateM * Math.pow(1 + mRateM, 300)) / (Math.pow(1 + mRateM, 300) - 1),
                 prepay: parseFloat(acc.querySelector('.rePrepay').value || 0),
                 sBal: 0, sDebt: 0, smRate: parseFloat(acc.querySelector('.smRate').value),
-                lastYrDrag: 0
+                lastYrDrag: 0, lastYrGrossReturn: 0
             };
         } else {
             const events = [];
@@ -187,7 +187,7 @@ function runSim() {
     html += `<th class="header-main total-col">TOTAL NET WORTH</th></tr><tr><th>-</th>`;
     
     processedAccounts.forEach(a => {
-        if (a.type === 'RE') html += `<th>Equity</th><th>Portfolio</th><th>Yr Return</th><th>HELOC Drag</th><th>Max WD</th><th>HELOC Bal</th>`;
+        if (a.type === 'RE') html += `<th>Equity</th><th>Net Portfolio</th><th>Gross Return</th><th>HELOC Drag</th><th>Max WD</th><th>HELOC Principal</th>`;
         else html += `<th>Open Balance</th><th>Interest</th><th>Shadow Max WD</th><th>(+) Additions</th><th>(-) Withdrawals</th><th>Closing</th>`;
     });
     html += `<th>Combined</th></tr></thead><tbody>`;
@@ -198,14 +198,13 @@ function runSim() {
         
         processedAccounts.forEach(a => {
             if (a.type === 'RE') {
-                // Net worth contribution: (Home Value - Mortgage Debt) + (Investment Portfolio - HELOC Leverage Balance)
+                // Net Portfolio is already clean; Total NW = Home Equity + Net Portfolio - HELOC Principal
                 totalNW += (a.hVal - a.mDebt) + (a.sBal - a.sDebt);
-                let interestEarned = a.sBal * (a.smRate / 100);
                 let shadowWD = getSustainableWD(a.sBal, a.smRate, endAge - age, [], age);
                 
                 html += `<td>${fmt(a.hVal - a.mDebt)}</td>
-                         <td>${fmt(a.sBal)}</td>
-                         <td class="interest-col">${fmt(interestEarned)}</td>
+                         <td style="font-weight:bold; color:#0f766e;">${fmt(a.sBal)}</td>
+                         <td class="interest-col">${fmt(a.lastYrGrossReturn)}</td>
                          <td class="drag-col">${a.lastYrDrag > 0 ? '-' + fmt(a.lastYrDrag) : '-'}</td>
                          <td class="shadow-wd">${fmt(shadowWD)}</td>
                          <td class="neg">${fmt(a.sDebt)}</td>`;
@@ -231,19 +230,22 @@ function runSim() {
         });
         html += `<td class="total-col">${fmt(totalNW)}</td></tr>`;
 
-        // Advance Smith Model Logic & Calculate Internal HELOC Friction Monthly
+        // Advance Strategy: Strip interest costs directly from portfolio return pool monthly
         processedAccounts.filter(a => a.type === 'RE').forEach(a => {
             a.hVal *= 1.03;
             let annualizedDragAccumulator = 0;
+            let annualizedGrossReturnAccumulator = 0;
             
             for (let m = 0; m < 12; m++) {
-                // Calculate monthly interest payment due on the current outstanding HELOC balance
-                if (a.sDebt > 0) {
-                    let monthlyHelocCost = a.sDebt * a.hRateM;
-                    annualizedDragAccumulator += monthlyHelocCost;
-                    a.sDebt += monthlyHelocCost; // Interest stacks onto the credit line balance
-                }
+                // 1. Calculate monthly leverage cost
+                let monthlyHelocCost = a.sDebt * a.hRateM;
+                annualizedDragAccumulator += monthlyHelocCost;
 
+                // 2. Calculate monthly gross investment growth
+                let monthlyGrossReturn = a.sBal * (a.smRate/1200);
+                annualizedGrossReturnAccumulator += monthlyGrossReturn;
+
+                // 3. Process primary mortgage mechanics
                 if (a.mDebt > 0) {
                     let mInt = a.mDebt * a.mRateM;
                     let mPrin = Math.min(a.mDebt, a.mPay - mInt);
@@ -252,17 +254,21 @@ function runSim() {
                     let extraApplied = Math.min(a.mDebt, a.prepay);
                     a.mDebt -= extraApplied;
                     
-                    let growth = a.sBal * (a.smRate/1200);
-                    a.mDebt = Math.max(0, a.mDebt - growth);
+                    // Converted mortgage space pushed directly into HELOC credit limits
+                    let totalP = mPrin + extraApplied;
+                    a.sDebt += totalP;
                     
-                    let totalP = mPrin + extraApplied + growth;
-                    a.sDebt += totalP; 
-                    a.sBal += totalP + growth;
+                    // Portfolio gains the newly advanced credit principal, adds market growth, and pays off the drag directly
+                    a.sBal += totalP + monthlyGrossReturn - monthlyHelocCost;
                 } else { 
-                    a.sBal += (a.sBal * (a.smRate/1200)); 
+                    // No mortgage remaining; portfolio expands purely by net spread (Growth - Drag)
+                    a.sBal += monthlyGrossReturn - monthlyHelocCost; 
                 }
+                
+                if (a.sBal < 0) a.sBal = 0;
             }
             a.lastYrDrag = annualizedDragAccumulator;
+            a.lastYrGrossReturn = annualizedGrossReturnAccumulator;
         });
     }
     document.getElementById('output').innerHTML = html + `</tbody></table>`;
