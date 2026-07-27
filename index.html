@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Granular Wealth Architect v4.5</title>
+    <title>Granular Wealth Architect v4.6</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f1f5f9; padding: 20px; color: #1e293b; line-height: 1.4; }
         .container { max-width: 98%; margin: 0 auto; background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
@@ -43,7 +43,7 @@
 <body>
 
 <div class="container">
-    <h2>Omnibus Wealth Architect <span style="font-size:0.5em; font-weight:normal; color:#64748b">| Edition 4.5: Net Return Reporting</span></h2>
+    <h2>Omnibus Wealth Architect <span style="font-size:0.5em; font-weight:normal; color:#64748b">| Edition 4.6: Start Age-Gated Contributions</span></h2>
     
     <div class="controls-top">
         <div><label style="color:white">Current Age</label><input type="number" id="curAge" value="45" style="width:70px"></div>
@@ -90,14 +90,18 @@ function addInvestment() {
     const div = document.createElement('div');
     div.className = 'card inv-card';
     div.dataset.type = 'INV';
+    const curAge = parseInt(document.getElementById('curAge')?.value || 45);
     div.innerHTML = `
         <button class="remove-btn" onclick="this.parentElement.remove()">Remove</button>
         <strong>💰 Investment Account</strong>
         <input type="text" class="invName" value="Asset Name" style="font-weight:bold; border:none; border-bottom:1px solid #ccc; margin-bottom:10px; font-size: 1.1rem;">
-        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
             <div><label>Initial Balance ($)</label><input type="number" class="invBal" value="250000"></div>
             <div><label>Annual Return (%)</label><input type="number" class="invRate" value="7.0"></div>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:8px;">
             <div><label>Monthly Contrib. ($)</label><input type="number" class="invMonthly" value="500"></div>
+            <div><label>Start Contrib. Age</label><input type="number" class="invStartAge" value="${curAge}"></div>
         </div>
         <div class="flow-manager">
             <div class="flow-zone">
@@ -128,16 +132,19 @@ function addRow(btn, type) {
     container.appendChild(row);
 }
 
-function getSustainableWD(P, r, n, events, futureAge, monthlyContrib = 0) {
+function getSustainableWD(P, r, n, events, futureAge, monthlyContrib = 0, startContribAge = 0) {
     if (n <= 0) return P;
     let r_dec = r / 100;
     let netPV = 0;
     
-    // Account for future recurring monthly contributions PV
+    // Account for future recurring monthly contributions PV only when age >= startContribAge
     if (monthlyContrib > 0) {
         let annualContrib = monthlyContrib * 12;
         for (let i = 1; i <= n; i++) {
-            netPV += annualContrib / Math.pow(1 + r_dec, i);
+            let evalAge = futureAge + (i - 1);
+            if (evalAge >= startContribAge) {
+                netPV += annualContrib / Math.pow(1 + r_dec, i);
+            }
         }
     }
     
@@ -187,6 +194,7 @@ function runSim() {
                 bal: parseFloat(acc.querySelector('.invBal').value),
                 rate: parseFloat(acc.querySelector('.invRate').value),
                 monthlyContrib: parseFloat(acc.querySelector('.invMonthly').value || 0),
+                startContribAge: parseInt(acc.querySelector('.invStartAge').value || startAge),
                 events: events
             };
         }
@@ -225,7 +233,9 @@ function runSim() {
                 let lumpIn = currentEvents.filter(e => e.type === 'IN').reduce((sum, e) => sum + e.amt, 0);
                 let lumpOut = currentEvents.filter(e => e.type === 'OUT').reduce((sum, e) => sum + e.amt, 0);
                 
-                let annualMonthlyContrib = a.monthlyContrib * 12;
+                // Only enable monthly contribution if current age >= startContribAge
+                let activeMonthlyContrib = (age >= a.startContribAge) ? a.monthlyContrib : 0;
+                let annualMonthlyContrib = activeMonthlyContrib * 12;
                 let totalIn = lumpIn + annualMonthlyContrib;
                 let totalOut = lumpOut;
                 
@@ -239,13 +249,13 @@ function runSim() {
                 for (let m = 0; m < 12; m++) {
                     let monthlyInterest = tempBal * rM;
                     annualInterestEarned += monthlyInterest;
-                    tempBal += monthlyInterest + a.monthlyContrib;
+                    tempBal += monthlyInterest + activeMonthlyContrib;
                 }
                 
                 // Add lump-sum events at year end
                 let closing = tempBal + lumpIn - lumpOut;
 
-                let shadowWD = getSustainableWD(a.bal, a.rate, endAge - age, a.events, age, a.monthlyContrib);
+                let shadowWD = getSustainableWD(a.bal, a.rate, endAge - age, a.events, age, a.monthlyContrib, a.startContribAge);
 
                 html += `<td>${fmt(a.bal)}</td>
                          <td class="interest-col">${fmt(annualInterestEarned)}</td>
